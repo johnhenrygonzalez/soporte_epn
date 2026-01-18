@@ -3,7 +3,7 @@ import session from "express-session";
 import path from "path";
 import dotenv from "dotenv";
 
-import ticketsRoutes from "./routes/ticketsRoutes.js";
+import ticketsRoutes from "./routes/ticketsroutes.js";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 import adminRoutes from "./routes/admin.js";
