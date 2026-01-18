@@ -1,14 +1,25 @@
-// routes/ticketsRoutes.js
+// routes/ticketsroutes.js
 import express from "express";
 import db from "../models/db.js";
-import { crearTicket, guardarTicket } from "../controllers/ticketsController.js";
+import { guardarTicket } from "../controllers/ticketsController.js";
 
 const router = express.Router();
 
 /* ===========================================================
-   🟦 Ruta pública — Mostrar formulario con logo dinámico
+   🟦 Ruta pública — Página principal
+   - Con BD: carga logo y nombre desde configuracion_general
+   - Sin BD: modo DEMO (Render)
    =========================================================== */
 router.get("/", async (req, res) => {
+  // 🟡 MODO DEMO (sin base de datos)
+  if (!db) {
+    return res.render("index", {
+      logo: null,
+      nombre: "Soporte Técnico (Demo)",
+    });
+  }
+
+  // 🟢 MODO NORMAL (con base de datos)
   try {
     const [rows] = await db.query(`
       SELECT logo, nombre_institucion
@@ -17,9 +28,10 @@ router.get("/", async (req, res) => {
     `);
 
     const logo = rows.length ? rows[0].logo : null;
-    const nombre = rows.length ? rows[0].nombre_institucion : "Soporte Técnico";
+    const nombre = rows.length
+      ? rows[0].nombre_institucion
+      : "Soporte Técnico";
 
-    // Renderiza tu formulario index.ejs, enviando logo y nombre
     res.render("index", {
       logo,
       nombre,
@@ -28,7 +40,7 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.error("❌ Error cargando configuración inicial:", error);
 
-    // En caso de error, renderiza sin logo
+    // Fallback seguro
     res.render("index", {
       logo: null,
       nombre: "Soporte Técnico",
@@ -38,7 +50,17 @@ router.get("/", async (req, res) => {
 
 /* ===========================================================
    🟩 Ruta pública — Guardar ticket
+   ⚠️ En modo demo NO guarda nada
    =========================================================== */
-router.post("/crear", guardarTicket);
+router.post("/crear", async (req, res) => {
+  if (!db) {
+    return res.status(503).send(
+      "Modo demostración: creación de tickets deshabilitada"
+    );
+  }
+
+  // Si hay BD, usa el controlador real
+  return guardarTicket(req, res);
+});
 
 export default router;
