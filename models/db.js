@@ -1,16 +1,23 @@
-// models/db.js
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
+import mysql from "mysql2/promise";
 
-dotenv.config();
+let connection = null;
 
-const db = await mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+if (process.env.DB_HOST && process.env.DB_HOST !== "test") {
+  try {
+    connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT,
+    });
 
-console.log('✅ Conexión exitosa a la base de datos:', process.env.DB_NAME);
+    console.log("✅ Conectado a MySQL");
+  } catch (error) {
+    console.error("❌ Error conectando a MySQL:", error.message);
+  }
+} else {
+  console.warn("⚠️ MySQL deshabilitado (modo sin BD)");
+}
 
-export default db;
+export default connection;
