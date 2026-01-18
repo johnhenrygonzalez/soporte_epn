@@ -1,0 +1,313 @@
+<!-- ========== PANEL DEL TÉCNICO ========== -->
+
+<%
+  if (typeof pageType === 'undefined') {
+    var pageType = 'tecnico';
+  }
+%>
+
+<section class="contenido-principal">
+
+<!-- ======================= ENCABEZADO UNIVERSAL ======================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>" 
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      👨‍🔧 Bienvenido, <%= usuarioSesion?.nombre || '' %>
+    </h2>
+    <p class="subtitulo-admin">Panel del técnico</p>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+
+</div>
+<!-- ======================= FIN ENCABEZADO UNIVERSAL ======================= -->
+
+<!-- ========= CONTENEDOR PRINCIPAL ========= -->
+<div class="contenedor mt-4 text-center">
+
+  <!-- TARJETAS RESUMEN -->
+  <div class="tarjetas d-flex flex-wrap justify-content-center gap-4 mb-4">
+
+    <!-- Asignados -->
+    <div class="tarjeta card text-white text-center shadow-lg p-4 card-asignados">
+      <div class="card-body">
+        <i class="fas fa-tools fa-3x mb-3"></i>
+        <h3>Asignados</h3>
+        <p class="display-6"><%= totalAsignados %></p>
+      </div>
+    </div>
+
+    <!-- En Progreso -->
+    <div class="tarjeta card text-white text-center shadow-lg p-4 card-proceso">
+      <div class="card-body">
+        <i class="fas fa-spinner fa-3x mb-3"></i>
+        <h3>En Progreso</h3>
+        <p class="display-6"><%= totalEnProceso %></p>
+      </div>
+    </div>
+
+    <!-- Finalizados -->
+    <div class="tarjeta card text-white text-center shadow-lg p-4 card-finalizados">
+      <div class="card-body">
+        <i class="fas fa-check-circle fa-3x mb-3"></i>
+        <h3>Cerrados</h3>
+        <p class="display-6"><%= totalFinalizados %></p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TITULO TABLA -->
+  <h2 class="text-center mt-5 mb-3">🎫 Tickets asignados</h2>
+
+  <% if (tickets.length === 0) { %>
+    <p class="text-muted">No tienes tickets asignados actualmente.</p>
+  <% } else { %>
+
+    <div class="table-responsive">
+      <table class="table table-striped align-middle tabla-tickets">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Solicitante</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% tickets.forEach(ticket => { %>
+          <tr>
+            <td><%= ticket.id %></td>
+            <td><%= ticket.nombre || 'N/A' %></td>
+            <td><%= ticket.descripcion %></td>
+
+            <td>
+              <span class="badge bg-<%= 
+                ticket.estado === 'Cerrado' ? 'success' : 
+                ticket.estado === 'En progreso' ? 'warning' : 
+                ticket.estado === 'Asignado' ? 'primary' :
+                'secondary' %>">
+                <%= ticket.estado %>
+              </span>
+            </td>
+
+            <td><%= new Date(ticket.fecha_creacion).toLocaleDateString() %></td>
+            <td>
+              <button
+                class="btn btn-primary btn-sm"
+                onclick="abrirModal(
+                  <%= ticket.id %>, 
+                  `<%= ticket.descripcion_operacion || '' %>`,
+                  `<%= ticket.estado %>`
+                )">
+                Actualizar
+              </button>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+
+      </table>
+    </div>
+
+  <% } %>
+
+</div>
+<!-- ========== FIN DEL CONTENEDOR PRINCIPAL ========== -->
+
+
+<!-- ========= MODAL ACTUALIZAR ========= -->
+<div id="modal" class="modal oculto">
+  <div class="modal-contenido">
+
+    <h3 class="text-dark fw-bold mb-3">Actualizar ticket</h3>
+
+    <form id="formActualizar" method="POST">
+
+      <div class="mb-3 text-start">
+        <label class="form-label fw-bold text-dark">Descripción de la operación realizada:</label>
+        <textarea name="descripcion_operacion" id="descripcion_operacion" class="form-control" required></textarea>
+      </div>
+
+      <div class="mb-3 text-start">
+        <label class="form-label fw-bold text-dark">Nuevo estado:</label>
+        <select name="estado" id="select_estado" class="form-select" required>
+          <option value="">Seleccione...</option>
+          <option value="En progreso">En progreso</option>
+          <option value="Cerrado">Cerrado</option>
+        </select>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="submit" class="btn btn-success btn-animado">Guardar cambios</button>
+        <button type="button" id="btnCancelar" class="btn btn-secondary btn-animado">Cancelar</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+
+<!-- ========= SCRIPT MODAL ========= -->
+<script>
+function abrirModal(id, descripcion, estadoActual) {
+  const modal = document.getElementById("modal");
+  const form  = document.getElementById("formActualizar");
+
+  modal.classList.remove("oculto");
+  form.action = "/tecnico/tickets/actualizar/" + id;
+
+  document.getElementById("descripcion_operacion").value = descripcion || "";
+
+  const select = document.getElementById("select_estado");
+  select.value = (estadoActual === "En progreso" || estadoActual === "Cerrado") 
+    ? estadoActual 
+    : "";
+}
+
+function cerrarModal() {
+  document.getElementById("modal").classList.add("oculto");
+}
+
+document.getElementById("btnCancelar").addEventListener("click", cerrarModal);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") cerrarModal();
+});
+</script>
+
+
+<!-- ========= ESTILOS COMPLETOS ========= -->
+<style>
+
+  /* 🌟 ENCABEZADO UNIVERSAL */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  /* TARJETAS PANEL */
+  .tarjeta {
+    width: 230px;
+    text-decoration: none;
+    border-radius: 18px;
+    transition: all 0.25s ease;
+    border: none;
+    cursor: default;
+  }
+  .tarjeta:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+  .card-asignados {
+    background: linear-gradient(135deg, #f6c23e, #e0a800);
+  }
+  .card-proceso {
+    background: linear-gradient(135deg, #36b9cc, #258faf);
+  }
+  .card-finalizados {
+    background: linear-gradient(135deg, #1cc88a, #17a673);
+  }
+
+  /* MODAL */
+  .modal {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+  }
+  .modal.oculto {
+    display: none;
+  }
+  .modal-contenido {
+    background: #ffffff !important;
+    width: 90%;
+    max-width: 500px;
+    padding: 25px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.35) !important;
+    animation: aparecer 0.25s ease;
+  }
+
+  @keyframes aparecer {
+    from { transform: scale(0.9); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .btn-animado {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-animado:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  }
+
+</style>
+
+</section>

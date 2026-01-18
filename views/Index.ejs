@@ -1,0 +1,196 @@
+<% if (logo) { %>
+  <div style="text-align:center; margin-top:0px; margin-bottom:0px;">
+    <img src="/uploads/<%= logo %>" alt="Logo institución" class="logo-publico">
+  </div>
+<% } %>
+
+<h1 style="text-align:center; margin-bottom:0px; margin-top:0px; font-size:20px; color:#444;">
+  <%= nombre %>
+</h1>
+
+<section class="support-container" style="margin-top:0px;">
+  <div class="support-card" style="margin-top:0px;">
+    <a href="/login" class="admin-access" title="Acceso personal de soporte">
+      <i class="fa fa-door-open"></i>
+    </a>
+
+    <h2 class="titulo-publico">🧾 Solicitud de Soporte</h2>
+
+    <form action="/crear" method="POST" class="support-form">
+
+      <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" name="correo" placeholder="tu@correo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción del problema:</label>
+        <textarea id="descripcion" name="descripcion" rows="4" placeholder="Describe brevemente el problema" required></textarea>
+      </div>
+
+      <button type="submit" class="btn-enviar">
+        <i class="fa fa-paper-plane"></i> Enviar solicitud
+      </button>
+    </form>
+
+  </div>
+</section>
+
+<!-- 🟦 MODAL CENTRADO DE ENVÍO -->
+<div id="modal-enviando" class="modal-enviando">
+  <div class="modal-box">
+    <div class="loader"></div>
+    <p>Enviando solicitud...</p>
+  </div>
+</div>
+
+
+<style>
+
+  /* 🔥 Reduce espacio entre los campos */
+  .form-group {
+    margin-bottom: 4px !important;
+  }
+
+  .support-form input,
+  .support-form textarea {
+    margin-bottom: 3px !important;
+  }
+
+  /* Contenedor general */
+  .support-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* 🔥 Card casi pegado al logo */
+  .support-card {
+    padding-top: 0px !important;
+    margin-top: 0px !important;            /* <--- AJUSTE CLAVE */
+  }
+
+  /* 🔥 Título más cerca del borde del card */
+  h2 {
+    margin-top: 15px !important;            /* <--- borde superior → título */
+    margin-bottom: 0px !important;         /* <--- título → primer input */
+  }
+
+  /* Botón más cerca del final */
+  .btn-enviar {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+  }
+
+  .titulo-publico {
+    font-size: 28px !important;
+    font-weight: bold !important;
+    color: #1a57d8 !important;
+    text-align: center !important;
+    margin-top: 30px !important;
+    margin-bottom: 20px !important;
+}
+
+    html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden !important;   /* ❌ Oculta la barra lateral */
+  }
+
+  /* Asegura que el fondo no empuje el contenido */
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Ocultar el header general SOLO en esta vista */
+  header, .navbar, .top-header, #header, .app-header {
+    display: none !important;
+  }
+
+.logo-publico {
+    width: 150px !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Fondo oscuro translúcido */
+.modal-enviando {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+/* Caja blanca */
+.modal-box {
+  background: #fff;
+  padding: 25px 35px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  animation: zoomIn 0.3s ease;
+}
+
+/* Texto */
+.modal-box p {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 12px;
+  color: #333;
+}
+
+/* Loader circular */
+.loader {
+  border: 4px solid #e3e3e3;
+  border-top: 4px solid #1a57d8;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+/* Animación de spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animación del cuadro */
+@keyframes zoomIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+</style>
+
+<script>
+document.querySelector(".support-form").addEventListener("submit", function () {
+
+  const modal = document.getElementById("modal-enviando");
+
+  // Mostrar modal
+  modal.style.display = "flex";
+
+  // Desaparecer a los 3 segundos
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 3000);
+
+});
+</script>

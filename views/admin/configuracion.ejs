@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración del Sistema</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+
+<body>
+
+<div class="config-page">
+  <div class="config-card shadow">
+
+    <h2 class="text-center fw-bold mb-4">
+      🧰 Configuración del Sistema
+    </h2>
+    
+    <% if (mensaje) { %>
+      <div class="alert alert-success text-center"><%= mensaje %></div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-danger text-center"><%= error %></div>
+    <% } %>
+
+    <!-- ===================================================== -->
+    <!-- FORMULARIO PRINCIPAL -->
+    <!-- ===================================================== -->
+    <form
+      action="/admin/configuracion/guardar"
+      method="POST"
+      enctype="multipart/form-data"
+      class="config-form"
+    >
+
+      <!-- PROVEEDOR SMTP -->
+      <h4 class="fw-bold mb-3">📦 Proveedor SMTP</h4>
+
+      <div class="mb-3">
+        <label class="form-label">Seleccionar proveedor</label>
+        <select id="smtp_provider" name="smtp_provider" class="form-select">
+          <option value="gmail">Gmail</option>
+          <option value="outlook">Outlook / Hotmail / Live</option>
+          <option value="yahoo">Yahoo</option>
+          <option value="manual">Servidor Manual / Interno</option>
+        </select>
+      </div>
+
+      <!-- CORREO REMITENTE -->
+      <h4 class="fw-bold mb-3">📡 Configuración del Correo</h4>
+
+      <div class="mb-3">
+        <label class="form-label">Correo remitente</label>
+        <input
+          type="email"
+          name="smtp_correo"
+          id="smtp_correo"
+          class="form-control"
+          value="<%= config ? config.smtp_correo : '' %>"
+          required
+        >
+      </div>
+
+      <!-- CONTRASEÑA APP -->
+      <div class="mb-3 password-wrapper">
+        <label class="form-label">Contraseña de aplicación</label>
+        <div class="password-box">
+          <input
+            type="password"
+            id="smtp_pass"
+            name="smtp_password"
+            class="form-control secure-input"
+            autocomplete="new-password"
+          >
+          <button type="button" id="btnTogglePass" class="toggle-pass-btn">🚧</button>
+        </div>
+      </div>
+
+      <!-- OPCIONES AVANZADAS -->
+      <div class="d-grid mb-3">
+        <button type="button" id="btnAdvanced" class="btn btn-dark btn-sm">
+          ⚠️ Mostrar opciones avanzadas
+        </button>
+      </div>
+
+      <div id="advancedOptions" class="advanced-options">
+
+        <div class="mb-3">
+          <label class="form-label">Servidor SMTP (host)</label>
+          <input
+            type="text"
+            id="smtp_host"
+            name="smtp_host"
+            class="form-control"
+            value="<%= config ? (config.smtp_host || '') : '' %>"
+          >
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Puerto SMTP</label>
+          <select name="smtp_port" id="smtp_port" class="form-select" required>
+            <option value="587">587 – TLS</option>
+            <option value="465">465 – SSL</option>
+            <option value="25">25 – No seguro (interno)</option>
+          </select>
+        </div>
+
+        <!-- SEGURIDAD SMTP -->
+        <div class="mb-3">
+          <label class="form-label">Seguridad</label>
+          <select name="smtp_seguridad" id="smtp_seguridad" class="form-select" required>
+            <option value="tls">TLS</option>
+            <option value="ssl">SSL</option>
+            <option value="none">Sin seguridad</option>
+          </select>
+        </div>
+
+      </div>
+
+
+      <!-- ===================================================== -->
+      <!-- 🟦 BLOQUE DE AUTENTICACIÓN 2FA (NUEVO) -->
+      <!-- ===================================================== -->
+      <h4 class="fw-bold mt-4 mb-3">🔐 Autenticación en Dos Pasos (2FA)</h4>
+
+      <% if (twofa_enabled == 1) { %>
+
+        <div class="alert alert-success text-center">
+          ✓ La autenticación de dos pasos está <strong>activada</strong>.
+        </div>
+
+        <div class="text-center mb-3">
+          ✓ La autenticación de dos pasos está <strong>activada</strong>.
+        </div>
+
+      <% } else { %>
+
+        <div class="alert alert-warning text-center">
+          ⚠️ La autenticación de dos pasos está <strong>desactivada</strong>.
+        </div>
+
+        <div class="text-center mb-3">
+          <a href="/admin/activar-2fa" class="btn btn-primary btn-sm">
+            <i class="fas fa-qrcode me-2"></i> Activar 2FA
+          </a>
+        </div>
+
+      <% } %>
+
+
+      <!-- ===================================================== -->
+      <!-- LOGO -->
+      <!-- ===================================================== -->
+      <h4 class="fw-bold mt-4 mb-3">📸 Logo Institucional</h4>
+
+      <div class="mb-3">
+        <label class="form-label">Subir nuevo logo (opcional)</label>
+        <input
+          type="file"
+          name="logo"
+          accept="image/*"
+          class="form-control"
+          onchange="previewLogo(event)"
+        >
+      </div>
+
+      <div class="text-center mb-4">
+        <% if (config && config.logo) { %>
+          <img id="logoPreview" src="/uploads/<%= config.logo %>" class="logo-preview">
+        <% } else { %>
+          <img id="logoPreview" style="display:none;" class="logo-preview">
+        <% } %>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="config-actions">
+        <button type="submit" class="btn btn-primary btn-sm">
+          💾 Guardar
+        </button>
+
+        <button type="button" id="btnTestMail" class="btn btn-success btn-sm">
+          📧 Correo de prueba
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ===================================================== -->
+<!-- CSS -->
+<!-- ===================================================== -->
+<style>
+
+  .config-page {
+    display: flex;
+    justify-content: center;
+    padding: 30px 10px 60px;
+  }
+
+  .config-card {
+    max-width: 520px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px 22px 26px;
+  }
+
+  .logo-preview {
+    width: 140px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+
+  .password-box {
+    position: relative;
+  }
+
+  .password-box input {
+    padding-right: 55px !important;
+  }
+
+  .toggle-pass-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+  }
+
+  .advanced-options {
+    display: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 14px;
+  }
+
+  .config-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+</style>
+
+<!-- ===================================================== -->
+<!-- JS -->
+<!-- ===================================================== -->
+<script>
+
+/* Mostrar/Ocultar contraseña */
+document.getElementById("btnTogglePass").addEventListener("click", () => {
+  const input = document.getElementById("smtp_pass");
+  const btn = document.getElementById("btnTogglePass");
+
+  if (input.type === "password") {
+    input.type = "text";
+    btn.textContent = "🔑";
+    setTimeout(() => { input.type = "password"; btn.textContent = "🚧"; }, 6000);
+  } else {
+    input.type = "password";
+    btn.textContent = "🚧";
+  }
+});
+
+/* Previsualizar logo */
+function previewLogo(event) {
+  const img = document.getElementById("logoPreview");
+  img.src = URL.createObjectURL(event.target.files[0]);
+  img.style.display = "block";
+}
+
+/* Mostrar/Ocultar opciones avanzadas */
+document.getElementById("btnAdvanced").addEventListener("click", () => {
+  const box = document.getElementById("advancedOptions");
+  const visible = box.style.display === "block";
+  box.style.display = visible ? "none" : "block";
+});
+
+/* Guardado AJAX */
+const formConfig = document.querySelector(".config-form");
+
+formConfig.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    alert(data.message || "Respuesta del servidor");
+
+  } catch (err) {
+    console.error("Error guardando configuración:", err);
+    alert("Error al guardar la configuración");
+  }
+});
+
+/* Botón Correo de prueba */
+document.getElementById("btnTestMail").addEventListener("click", async () => {
+  const form = document.querySelector(".config-form");
+  const formData = new FormData(form);
+
+  const body = {
+    smtp_correo: formData.get("smtp_correo"),
+    smtp_password: formData.get("smtp_password"),
+    smtp_host: formData.get("smtp_host"),
+    smtp_port: formData.get("smtp_port"),
+    smtp_seguridad: formData.get("smtp_seguridad")
+  };
+
+  const res = await fetch("/admin/configuracion/probar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const data = await res.json();
+  alert(data.message);
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<main class="container py-4">
+  <style>
+    .card-2fa {
+      background-color: #ffffff !important;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+
+      /* ← ANULAMOS la herencia de bg-light */
+      color: #000 !important;
+    }
+
+    .card-2fa:hover {
+      transform: none !important;
+      background-color: #ffffff !important;
+    }
+
+    /* ← AQUÍ destruimos definitivamente el color blanco heredado */
+    .card-2fa input {
+      background-color: #fff !important;
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+    }
+
+    .card-2fa input::placeholder {
+      color: #777 !important;
+    }
+
+    /* DESTRUIR cualquier overlay global para esta vista */
+    .card-2fa::before,
+    .card-2fa::after {
+      content: none !important;
+      display: none !important;
+      background: none !important;
+      box-shadow: none !important;
+      opacity: 0 !important;
+    }
+
+  </style>
+
+  <div class="container mt-5" style="max-width: 400px;">
+    <div class="card card-2fa p-4 text-center">
+
+      <h3 class="mb-3">🔐 Verificación en Dos Pasos</h3>
+      <p>Ingresa el código generado por El Authenticator</p>
+
+      <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+
+      <form action="/login/verificar-2fa" method="POST">
+        <input 
+          type="text" 
+          name="codigo"
+          class="form-control text-center mb-3"
+          placeholder="Código de 6 dígitos"
+          required
+        />
+        <button class="btn btn-primary w-100">Verificar</button>
+      </form>
+
+    </div>
+  </div>
+</main>

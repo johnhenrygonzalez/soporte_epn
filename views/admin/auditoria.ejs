@@ -1,0 +1,26 @@
+<h2>📜 Auditoría del sistema</h2>
+
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Usuario</th>
+      <th>Acción</th>
+      <th>Entidad</th>
+      <th>ID</th>
+      <th>IP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% auditoria.forEach(a => { %>
+      <tr>
+        <td><%= a.fecha %></td>
+        <td><%= a.usuario %></td>
+        <td><%= a.accion %></td>
+        <td><%= a.entidad %></td>
+        <td><%= a.entidad_id %></td>
+        <td><%= a.ip %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>

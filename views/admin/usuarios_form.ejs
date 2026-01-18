@@ -1,0 +1,230 @@
+<%
+  if (typeof pageType === 'undefined') {
+    var pageType = 'admin';
+  }
+%>
+
+<section class="contenido-principal">
+
+<!-- ======================= ENCABEZADO UNIVERSAL ======================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>" 
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-user-edit me-2"></i> <%= titulo %>
+    </h2>
+
+    <p class="subtitulo-admin">
+      <%= (usuarioSesion && usuarioSesion.nombre) || 'Administrador' %>
+    </p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="margin-top: 8px; color:red; font-weight:bold;">
+        <%= error %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+
+</div>
+<!-- ======================= FIN ENCABEZADO ======================= -->
+
+
+<!-- ======================= FORMULARIO ======================= -->
+<div class="form-container">
+  <form 
+    method="POST"
+    action="<%= accion %>"
+    class="form-usuario"
+    id="formUsuario"
+  >
+    <!-- Nombre -->
+    <label for="nombre">Nombre:</label>
+    <input 
+      type="text" 
+      id="nombre" 
+      name="nombre" 
+      value="<%= usuario ? usuario.nombre : '' %>" 
+      required
+    >
+
+    <!-- Correo -->
+    <label for="correo">Correo:</label>
+    <input 
+      type="email" 
+      id="correo" 
+      name="correo" 
+      value="<%= usuario ? usuario.correo : '' %>" 
+      required
+    >
+
+    <!-- Rol -->
+    <label for="rol">Rol:</label>
+    <select id="rol" name="rol" required>
+      <option value="">Seleccione un rol</option>
+      <option value="Administrador" <%= usuario && usuario.rol === 'Administrador' ? 'selected' : '' %>>Administrador</option>
+      <option value="Técnico" <%= usuario && usuario.rol === 'Técnico' ? 'selected' : '' %>>Técnico</option>
+    </select>
+
+    <!-- Contraseña (solo al crear usuario) -->
+    <% if (!usuario) { %>
+      <label for="contrasena">Contraseña:</label>
+      <input 
+        type="password" 
+        id="contrasena" 
+        name="contrasena" 
+        minlength="8"
+        required
+      >
+    <% } %>
+
+    <!-- Botones -->
+    <div class="botones-form">
+      <button type="submit" class="btn-guardar">💾 Guardar</button>
+      <a href="/admin/usuarios" class="btn-cancelar">← Volver</a>
+    </div>
+
+  </form>
+</div>
+
+</section>
+
+
+<!-- ============================== VALIDACIÓN JS ============================== -->
+<script>
+document.getElementById('formUsuario').addEventListener('submit', function(e) {
+  const nombre = document.getElementById('nombre').value.trim();
+  const correo = document.getElementById('correo').value.trim();
+  const rol = document.getElementById('rol').value;
+  const contrasena = document.getElementById('contrasena');
+
+  if (!nombre || !correo || !rol) {
+    alert("Por favor, completa todos los campos obligatorios.");
+    e.preventDefault();
+    return false;
+  }
+
+  if (contrasena && contrasena.value.length < 8) {
+    alert("La contraseña debe tener al menos 8 caracteres.");
+    e.preventDefault();
+    return false;
+  }
+});
+</script>
+
+
+<!-- ============================== ESTILOS ============================== -->
+<style>
+
+  /* 🌟 ENCABEZADO UNIVERSAL — IGUAL EN TODAS LAS VISTAS */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 25px;
+    margin: 25px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+
+  /* ======================= FORMULARIO ======================= */
+  .form-container {
+    max-width: 500px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .form-usuario label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .form-usuario input,
+  .form-usuario select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+
+  .botones-form {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .btn-guardar {
+    background: #0d6efd;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .btn-cancelar {
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+  }
+
+</style>

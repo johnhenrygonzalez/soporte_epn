@@ -1,0 +1,238 @@
+<!-- ================= ENCABEZADO UNIVERSAL ================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img src="/uploads/<%= logo %>" alt="Logo institucional" class="logo-admin">
+    <% } %>
+  </div>
+
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-envelope-open-text me-2"></i> Mensajes a Técnicos
+    </h2>
+    <p class="subtitulo-admin"><%= usuarioSesion?.nombre || "Administrador" %></p>
+  </div>
+
+  <div class="encabezado-espaciador"></div>
+</div>
+
+
+<!-- ================= MODAL ANIMADO UNIVERSAL ================= -->
+<div id="modalProceso"
+     style="position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.55); display:none; justify-content:center;
+            align-items:center; z-index:10000; opacity:0; transition:opacity 0.4s ease;">
+  <div class="modal-box"
+       style="background:white; padding:35px; border-radius:15px; text-align:center;
+              width:360px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+      <div id="modalProcesoIcon" class="loader-spinner"></div>
+      <p id="modalProcesoText" style="font-size:18px; margin-top:10px;">
+        Procesando…
+      </p>
+  </div>
+</div>
+
+
+<!-- ================= CONTENEDOR FORM ================= -->
+<div class="contenedor-mensajes-form shadow-sm">
+
+  <% if (mensajeExito) { %>
+    <div class="alert alert-success text-center fw-bold">
+      <%= mensajeExito %>
+    </div>
+  <% } %>
+
+  <% if (mensajeError) { %>
+    <div class="alert alert-danger text-center fw-bold">
+      <%= mensajeError %>
+    </div>
+  <% } %>
+
+  <form id="formMensaje" action="/admin/mensajes/enviar" method="POST">
+
+    <label class="fw-bold mt-3">Enviar mensaje a:</label>
+    <select id="destinatario_tipo" name="destinatario_tipo" class="form-select mb-3" required>
+      <option value="uno">Un técnico</option>
+      <option value="todos">Todos los técnicos</option>
+    </select>
+
+    <div id="contenedor-tecnicos">
+      <label class="fw-bold">Seleccione técnico:</label>
+      <select name="destinatario_id" class="form-select mb-3">
+        <% tecnicos.forEach(tec => { %>
+          <option value="<%= tec.id %>"><%= tec.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <label class="fw-bold">Asunto:</label>
+    <input type="text" name="asunto" class="form-control mb-3" required>
+
+    <label class="fw-bold">Mensaje:</label>
+    <textarea name="mensaje" rows="5" class="form-control mb-4" required></textarea>
+
+    <button class="btn btn-primary w-100 fw-bold py-2" type="submit">
+      📨 Enviar mensaje
+    </button>
+
+  </form>
+</div>
+
+
+<!-- ================= ESTILOS ================= -->
+<style>
+    /* Encabezado universal (misma apariencia en todo el sistema) */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  .contenedor-mensajes-form {
+    max-width: 700px;
+    margin: 25px auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+  .loader-spinner {
+    width: 55px;
+    height: 55px;
+    border: 6px solid #ddd;
+    border-top-color: #4e73df;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 18px auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .checkmark {
+    font-size: 55px;
+    color: #28a745;
+    animation: bounce 0.4s ease;
+  }
+
+  @keyframes bounce {
+    0% { transform: scale(0.4); opacity: 0; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+</style>
+
+
+<!-- ================= JS ================= -->
+<script>
+  // Mostrar/ocultar técnico según selección
+  const tipo = document.getElementById("destinatario_tipo");
+  const contTecnicos = document.getElementById("contenedor-tecnicos");
+
+  tipo.addEventListener("change", () => {
+    contTecnicos.style.display = tipo.value === "uno" ? "block" : "none";
+  });
+
+
+  // ================= MODAL FUNCIONES =================
+  function mostrarModalProceso(texto = "Procesando...") {
+    const modal = document.getElementById("modalProceso");
+    const icon = document.getElementById("modalProcesoIcon");
+    const text = document.getElementById("modalProcesoText");
+
+    icon.className = "loader-spinner";
+    icon.innerHTML = "";
+    text.innerHTML = texto;
+
+    modal.style.display = "flex";
+    setTimeout(() => modal.style.opacity = "1", 10);
+  }
+
+  function finalizarModalProceso(texto = "Completado ✔") {
+    const icon = document.getElementById("modalProcesoIcon");
+    const text = document.getElementById("modalProcesoText");
+
+    icon.className = "";
+    icon.innerHTML = `<div class="checkmark">✔</div>`;
+    text.innerHTML = texto;
+
+    // 🟢 LIMPIAR FORMULARIO DESPUÉS DEL ÉXITO
+    document.getElementById("formMensaje").reset();
+
+    setTimeout(() => {
+      const modal = document.getElementById("modalProceso");
+      modal.style.opacity = "0";
+      setTimeout(() => modal.style.display = "none", 400);
+
+      // Recargar página
+      location.reload();
+    }, 1500);
+  }
+
+  // ================= ENVÍO CON FETCH =================
+  document.getElementById("formMensaje").addEventListener("submit", async (e) => {
+    e.preventDefault(); // Evita envío tradicional
+
+    mostrarModalProceso("Enviando mensaje...");
+
+    const formData = new FormData(e.target);
+
+    // Convertir FormData a JSON real
+    const dataToSend = {};
+    formData.forEach((value, key) => dataToSend[key] = value);
+
+    const res = await fetch("/admin/mensajes/enviar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dataToSend)
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      finalizarModalProceso("Mensaje enviado correctamente ✔");
+    } else {
+      finalizarModalProceso("Error al enviar el mensaje ✖");
+    }
+  });
+</script>

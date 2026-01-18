@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title><%= typeof title !== 'undefined' ? title : "Soporte Técnico" %></title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="bg-light">
+
+  <%
+    // Usuario en sesión
+    const user = typeof usuarioSesion !== "undefined" ? usuarioSesion : null;
+
+    // Detectar si es administrador
+    const esAdminSesion = 
+      user && user.rol && user.rol.toLowerCase().includes("admin");
+
+    // pageType por defecto
+    if (typeof pageType === 'undefined') pageType = 'interna';
+
+    // Saber si está en el panel principal
+    const esPanelPrincipal = pageType === 'admin';
+  %>
+
+  <!-- NAVBAR SUPERIOR -->
+  <nav class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+
+      <!-- TÍTULO -->
+      <div class="navbar-brand d-flex align-items-center gap-2" style="cursor: default;">
+        <i class="bi bi-gear-fill"></i>
+
+        <% if (esAdminSesion) { %>
+          <span>Panel de Administración</span>
+        <% } else { %>
+          <span>Soporte Técnico</span>
+        <% } %>
+      </div>
+
+      <!-- MENÚ SUPERIOR -->
+      <div class="d-flex align-items-center">
+
+        <!-- 🏠 Inicio (botón azul) -->
+        <% if (esAdminSesion) { %>
+          <a href="/admin" class="btn btn-sm btn-primary me-2">
+            <i class="fas fa-home"></i> Inicio
+          </a>
+        <% } %>
+
+        <!-- ⚙️ Configuración SOLO en panel principal (botón verde) -->
+        <% if (esPanelPrincipal && esAdminSesion) { %>
+          <a href="/admin/configuracion" class="btn btn-sm btn-success me-2">
+            <i class="fas fa-cog"></i> Configuración
+          </a>
+        <% } %>
+
+        <!-- 🔴 Salir -->
+        <% if (user) { %>
+          <form action="/logout" method="POST" class="m-0">
+            <button type="submit" class="btn btn-sm btn-danger">
+              <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+          </form>
+        <% } %>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main class="container py-4">
+    <%- body %>
+  </main>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    .navbar .btn-primary {
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+    }
+
+    .navbar .btn-success {
+      box-shadow: 0 2px 6px rgba(25, 135, 84, 0.4);
+    }
+
+    .navbar .btn-danger {
+      box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+    }
+
+    .navbar .btn-primary:hover,
+    .navbar .btn-success:hover,
+    .navbar .btn-danger:hover {
+      opacity: 0.9;
+      transform: scale(1.03);
+      transition: 0.15s ease;
+    }
+  </style>
+
+</body>
+</html>

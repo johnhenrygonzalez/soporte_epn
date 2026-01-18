@@ -1,0 +1,257 @@
+<!-- 🎫 Tickets Asignados -->
+
+<section class="mt-3 contenedor-principal">
+
+  <!-- 🌟 ENCABEZADO UNIVERSAL: LOGO IZQUIERDA + TÍTULO CENTRADO -->
+  <div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+    <!-- LOGO IZQUIERDA -->
+    <div class="encabezado-logo">
+      <% if (logo) { %>
+        <img 
+          src="/uploads/<%= logo %>" 
+          alt="Logo institucional"
+          class="logo-admin"
+        >
+      <% } %>
+    </div>
+
+    <!-- TÍTULO Y NOMBRE -->
+    <div class="encabezado-titulos flex-grow-1 text-center">
+      <h2 class="titulo-admin">🎯 Tickets Asignados</h2>
+      <p class="subtitulo-admin">
+        <%= usuarioSesion?.nombre || usuarioSesion?.rol || "Técnico" %>
+      </p>
+    </div>
+
+    <!-- ESPACIADOR DERECHO -->
+    <div class="encabezado-espaciador"></div>
+
+  </div>
+
+  <!-- ================= FILTROS ================= -->
+  <form method="GET" class="card p-3 mb-3 shadow-sm tarjeta-contenedor">
+    <div class="row g-3 align-items-end">
+
+      <!-- Técnico -->
+      <div class="col-md-3">
+        <label class="form-label">Técnico</label>
+        <select name="tecnico_id" class="form-select">
+          <option value="">Todos</option>
+          <% tecnicos.forEach(t => { %>
+            <option value="<%= t.id %>" <%= filtros.tecnico_id == t.id ? "selected" : "" %>>
+              <%= t.nombre %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Fecha desde -->
+      <div class="col-md-2">
+        <label class="form-label">Fecha desde</label>
+        <input type="date" name="fecha_desde" class="form-control"
+               value="<%= filtros.fecha_desde || '' %>">
+      </div>
+
+      <!-- Fecha hasta -->
+      <div class="col-md-2">
+        <label class="form-label">Fecha hasta</label>
+        <input type="date" name="fecha_hasta" class="form-control"
+               value="<%= filtros.fecha_hasta || '' %>">
+      </div>
+
+      <!-- Estado -->
+      <div class="col-md-2">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-select">
+          <option value="">Todos</option>
+          <option value="Asignado"    <%= filtros.estado === "Asignado" ? "selected" : "" %>>Asignado</option>
+          <option value="En progreso" <%= filtros.estado === "En progreso" ? "selected" : "" %>>En progreso</option>
+          <option value="Pendiente"   <%= filtros.estado === "Pendiente" ? "selected" : "" %>>Pendiente</option>
+          <option value="Cerrado"     <%= filtros.estado === "Cerrado" ? "selected" : "" %>>Cerrado</option>
+        </select>
+      </div>
+
+      <!-- Botones -->
+      <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">🔍 Filtrar</button>
+        <a href="/admin/tickets/asignados" class="btn btn-outline-secondary">⟳ Limpiar</a>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- ================= LISTADO ================= -->
+  <div class="card shadow-sm tarjeta-contenedor">
+    <div class="card-body p-0">
+
+      <% if (tickets.length > 0) { %>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover mb-0 align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th style="width: 70px;">ID</th>
+                <th>Solicitante</th>
+                <th>Técnico</th>
+                <th>Estado</th>
+                <th>Fecha creación</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% tickets.forEach(t => { %>
+                <tr>
+                  <td>#<%= t.id %></td>
+                  <td><%= t.nombre %></td>
+                  <td><%= t.tecnico || "—" %></td>
+
+                  <td>
+                    <span class="badge 
+                      <%= t.estado === 'En progreso' ? 'bg-info' : 
+                          t.estado === 'Asignado' ? 'bg-primary' :
+                          t.estado === 'Cerrado' ? 'bg-success' :
+                          'bg-secondary' %>">
+                      <%= t.estado %>
+                    </span>
+                  </td>
+
+                  <td>
+                    <%= t.fecha_creacion 
+                          ? new Date(t.fecha_creacion).toLocaleString("es-EC") 
+                          : "—" %>
+                  </td>
+
+                  <td>
+                    <%= t.descripcion?.length > 60 
+                          ? t.descripcion.substring(0, 60) + "…" 
+                          : t.descripcion || "" %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="text-center py-4 mb-0">No hay tickets asignados con los filtros seleccionados.</p>
+      <% } %>
+
+    </div>
+  </div>
+
+  <!-- ================= PAGINACIÓN ================= -->
+  <% if (totalPaginas > 1) { %>
+    <nav class="mt-3">
+      <ul class="pagination justify-content-center">
+
+        <!-- Anterior -->
+        <li class="page-item <%= pagina <= 1 ? "disabled" : "" %>">
+          <a class="page-link"
+             href="<%= pagina > 1 
+                     ? '?pagina=' + (pagina - 1)
+                       + '&tecnico_id=' + (filtros.tecnico_id || '')
+                       + '&fecha_desde=' + (filtros.fecha_desde || '')
+                       + '&fecha_hasta=' + (filtros.fecha_hasta || '')
+                       + '&estado=' + (filtros.estado || '')
+                     : '#' %>">
+            «
+          </a>
+        </li>
+
+        <!-- Números -->
+        <% for (let p = 1; p <= totalPaginas; p++) { %>
+          <li class="page-item <%= p === pagina ? "active" : "" %>">
+            <a class="page-link"
+               href="?pagina=<%= p %>
+                     &tecnico_id=<%= filtros.tecnico_id || '' %>
+                     &fecha_desde=<%= filtros.fecha_desde || '' %>
+                     &fecha_hasta=<%= filtros.fecha_hasta || '' %>
+                     &estado=<%= filtros.estado || '' %>">
+              <%= p %>
+            </a>
+          </li>
+        <% } %>
+
+        <!-- Siguiente -->
+        <li class="page-item <%= pagina >= totalPaginas ? "disabled" : "" %>">
+          <a class="page-link"
+             href="<%= pagina < totalPaginas 
+                     ? '?pagina=' + (pagina + 1)
+                       + '&tecnico_id=' + (filtros.tecnico_id || '')
+                       + '&fecha_desde=' + (filtros.fecha_desde || '')
+                       + '&fecha_hasta=' + (filtros.fecha_hasta || '')
+                       + '&estado=' + (filtros.estado || '')
+                     : '#' %>">
+            »
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+  <% } %>
+
+</section>
+
+<style>
+
+  /* 🌟 ENCABEZADO UNIVERSAL */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  /* Ajuste global para igualar todos los contenedores */
+  .contenedor-principal {
+    max-width: 1500px !important;
+    margin: 0 auto !important;
+  }
+
+  .tarjeta-contenedor {
+    max-width: 1500px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+
+</style>

@@ -1,0 +1,144 @@
+<!-- ===================== ENCABEZADO UNIVERSAL (MODELO ESTÁNDAR) ===================== -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>" 
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO Y USUARIO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-users me-2"></i> Gestión de Usuarios
+    </h2>
+    <p class="subtitulo-admin">
+      <%= (usuarioSesion && usuarioSesion.nombre) || 'Administrador' %>
+    </p>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+
+</div>
+
+<!-- BOTÓN CREAR NUEVO USUARIO -->
+<div class="contenedor-boton">
+  <a href="/admin/usuarios/crear" class="btn-crear">➕ Crear nuevo usuario</a>
+</div>
+
+<!-- ===================== TABLA ===================== -->
+<% if (usuarios.length > 0) { %>
+  <table class="tabla-usuarios">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% usuarios.forEach(u => { %>
+        <tr>
+          <td><%= u.id %></td>
+          <td><%= u.nombre %></td>
+          <td><%= u.correo %></td>
+          <td><%= u.rol %></td>
+          <td class="acciones">
+            <a href="/admin/usuarios/editar/<%= u.id %>" class="btn-editar">✏️ Editar</a>
+            <a href="/admin/usuarios/eliminar/<%= u.id %>" class="btn-eliminar"
+               onclick="return confirm('¿Deseas eliminar este usuario?')">
+               🗑 Eliminar
+            </a>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } else { %>
+  <p class="mensaje-vacio">No hay usuarios registrados.</p>
+<% } %>
+
+
+<!-- ===================== ESTILOS DEL MODELO ===================== -->
+<style>
+
+  /* === CONTENEDOR PRINCIPAL DEL ENCABEZADO (ESTÁNDAR GLOBAL) === */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Logo alineado a la izquierda */
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  /* Títulos centrados */
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  /* Caja vacía para equilibrar */
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  /* Botón crear */
+  .contenedor-boton {
+    max-width: 1500px;
+    margin: 10px auto 20px auto;
+    text-align: left;
+  }
+
+  .btn-crear {
+    background: #28a745;
+    padding: 10px 16px;
+    border-radius: 6px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .btn-crear:hover {
+    background: #218838;
+  }
+
+</style>

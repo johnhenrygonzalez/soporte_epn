@@ -1,0 +1,400 @@
+<!-- ===================== ENCABEZADO UNIVERSAL ===================== -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img src="/uploads/<%= logo %>" class="logo-admin" alt="Logo institucional">
+    <% } %>
+  </div>
+
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-history me-2"></i> Historial de Mensajes
+    </h2>
+    <p class="subtitulo-admin">
+      <%= (usuarioSesion && usuarioSesion.nombre) || 'Administrador' %>
+    </p>
+  </div>
+
+  <div class="encabezado-espaciador"></div>
+</div>
+
+  <!-- ========== FILTROS ========== -->
+  <form method="GET" class="filtros mb-3">
+    <div class="row g-3 align-items-end">
+
+      <!-- Fecha desde -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Fecha desde</label>
+        <input
+          type="date"
+          name="fecha_desde"
+          class="form-control"
+          value="<%= filtros.fecha_desde || '' %>">
+      </div>
+
+      <!-- Fecha hasta -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Fecha hasta</label>
+        <input
+          type="date"
+          name="fecha_hasta"
+          class="form-control"
+          value="<%= filtros.fecha_hasta || '' %>">
+      </div>
+
+      <!-- Destino -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Destino</label>
+        <select name="destino" id="filtro_destino" class="form-select">
+          <option value="">Todos</option>
+          <option value="uno"   <%= filtros.destino === 'uno'   ? 'selected' : '' %>>Mensajes individuales</option>
+          <option value="todos" <%= filtros.destino === 'todos' ? 'selected' : '' %>>Envíos a todos</option>
+        </select>
+      </div>
+
+      <!-- Técnico -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Técnico</label>
+        <select name="tecnico_id" id="filtro_tecnico" class="form-select">
+          <option value="">Todos</option>
+          <% if (typeof tecnicos !== 'undefined') { %>
+            <% tecnicos.forEach(t => { %>
+              <option value="<%= t.id %>" <%= String(filtros.tecnico_id) === String(t.id) ? 'selected' : '' %>>
+                <%= t.nombre %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+
+      <!-- Botones -->
+      <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+        <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+        <a href="/admin/mensajes-historial" class="btn btn-outline-secondary">⟳ Limpiar</a>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- ===================== TABLA ===================== -->
+  <div class="contenedor-tabla shadow-sm">
+
+    <% if (mensajes.length === 0) { %>
+      <p class="text-center text-muted mb-0">No hay mensajes registrados con los filtros seleccionados.</p>
+    <% } else { %>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th class="text-center">Fecha de Envio</th>
+              <th class="text-center">Enviado Por</th>
+              <th class="text-center">Destinatario</th>
+              <th class="text-center">Asunto</th>
+              <th class="text-center">Mensaje</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <% mensajes.forEach(m => { %>
+              <tr>
+                <td class="text-center"><%= new Date(m.fecha).toLocaleString("es-CO") %></td>
+                <td class="text-center"><%= m.admin_nombre %></td>
+
+                <td class="text-center">
+                  <% if (m.destinatario_tipo === "todos") { %>
+                    <span class="badge-dest badge-todos">Todos</span>
+                  <% } else { %>
+                    <span 
+                      class="badge-dest badge-tecnico" 
+                      data-tecnico-id="<%= m.destinatario_id %>"
+                    >
+                      <%= m.tecnico_nombre %>
+                    </span>
+                  <% } %>
+                </td>
+
+                <td class="text-center"><%= m.asunto %></td>
+                <td class="text-center">
+                  <button 
+                    class="btn btn-sm btn-dark verMensajeBtn"
+                    data-mensaje="<%= m.mensaje %>"
+                  >
+                    Ver mensaje
+                  </button>
+                </td>
+
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ========== PAGINACIÓN ========== -->
+      <% if (totalPaginas > 1) { %>
+        <nav class="mt-3">
+          <ul class="pagination justify-content-center">
+
+            <!-- Anterior -->
+            <li class="page-item <%= pagina <= 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                 href="<%= pagina > 1
+                          ? '?pagina=' + (pagina - 1)
+                            + '&fecha_desde=' + (filtros.fecha_desde || '')
+                            + '&fecha_hasta=' + (filtros.fecha_hasta || '')
+                            + '&destino=' + (filtros.destino || '')
+                            + '&tecnico_id=' + (filtros.tecnico_id || '')
+                          : '#' %>">
+                «
+              </a>
+            </li>
+
+            <!-- Números -->
+            <% for (let p = 1; p <= totalPaginas; p++) { %>
+              <li class="page-item <%= p === pagina ? 'active' : '' %>">
+                <a class="page-link"
+                   href="?pagina=<%= p %>
+                        &fecha_desde=<%= filtros.fecha_desde || '' %>
+                        &fecha_hasta=<%= filtros.fecha_hasta || '' %>
+                        &destino=<%= filtros.destino || '' %>
+                        &tecnico_id=<%= filtros.tecnico_id || '' %>">
+                  <%= p %>
+                </a>
+              </li>
+            <% } %>
+
+            <!-- Siguiente -->
+            <li class="page-item <%= pagina >= totalPaginas ? 'disabled' : '' %>">
+              <a class="page-link"
+                 href="<%= pagina < totalPaginas
+                          ? '?pagina=' + (pagina + 1)
+                            + '&fecha_desde=' + (filtros.fecha_desde || '')
+                            + '&fecha_hasta=' + (filtros.fecha_hasta || '')
+                            + '&destino=' + (filtros.destino || '')
+                            + '&tecnico_id=' + (filtros.tecnico_id || '')
+                          : '#' %>">
+                »
+              </a>
+            </li>
+
+          </ul>
+        </nav>
+      <% } %>
+
+    <% } %>
+
+  </div>
+</div>
+
+<!-- MODAL — Ver mensaje completo -->
+<div class="modal fade" id="modalMensaje" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">Mensaje enviado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="modalMensajeTexto" style="white-space: pre-line;">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".verMensajeBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const texto = btn.dataset.mensaje || "";
+      document.getElementById("modalMensajeTexto").innerText = texto;
+
+      const modal = new bootstrap.Modal(document.getElementById("modalMensaje"));
+      modal.show();
+    });
+  });
+});
+</script>
+
+<!-- ===================== ESTILOS ===================== -->
+<style>
+  /* Contenedor general (filtros + tabla) */
+  .contenedor-admin {
+    max-width: 1500px;
+    margin: 20px auto 40px auto;
+    padding: 0 15px;
+  }
+
+  /* Caja de filtros */
+  .filtros {
+    background: #ffffff;
+    padding: 18px 22px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  /* Contenedor de la tabla */
+  .contenedor-tabla {
+    max-width: 100%;
+    margin-top: 20px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+ /* Encabezado universal (misma apariencia en todo el sistema) */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  .btn-dark {
+    background-color: #000 !important;
+    border: none !important;
+  }
+  .btn-dark:hover {
+    background-color: #333 !important;
+  }
+
+
+  /* Botón activo (página seleccionada) */
+  .pagination .page-item.active .page-link {
+    background-color: #000 !important;
+    border-color: #000 !important;
+    color: #fff !important;
+  }
+
+  /* Botones normales */
+  .pagination .page-link {
+    color: #000 !important;
+    border: 1px solid #ccc !important;
+    background-color: #fff !important;
+    border-radius: 6px;
+  }
+
+  /* Hover */
+  .pagination .page-link:hover {
+    background-color: #111 !important;
+    border-color: #111 !important;
+    color: #fff !important;
+  }
+
+  /* Deshabilitados */
+  .pagination .page-item.disabled .page-link {
+    background-color: #e9ecef !important;
+    color: #777 !important;
+    border-color: #ddd !important;
+  }
+
+  /* Badge general */
+.badge-dest {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Badge para "Todos" */
+.badge-todos {
+  background-color: #a4a3fa;
+  color: #000;
+  border: 1px solid #a4a3fa
+}
+
+/* Badge para técnicos (color lo genera JS) */
+.badge-tecnico {
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+</style>
+
+<!-- ===================== JS: Habilitar / deshabilitar combo técnico ===================== -->
+<script>
+  const selDestino = document.getElementById("filtro_destino");
+  const selTecnico = document.getElementById("filtro_tecnico");
+
+  function actualizarTecnico() {
+    if (!selDestino) return;
+    if (selDestino.value === "todos") {
+      // Si es "todos", deshabilitamos selección de técnico
+      selTecnico.value = "";
+      selTecnico.disabled = true;
+    } else {
+      selTecnico.disabled = false;
+    }
+  }
+
+  if (selDestino && selTecnico) {
+    selDestino.addEventListener("change", actualizarTecnico);
+    // Llamar una vez al cargar con el valor actual
+    actualizarTecnico();
+  }
+
+  
+  // Paleta de colores pastel suaves
+  const coloresPastel = [
+    "#A3D8F4", // azul pastel
+    "#B5EAD7", // verde menta pastel
+    "#FFDAC1", // durazno pastel
+    "#F9E2AE", // amarillo pastel suave
+    "#E2C2FF", // lavanda pastel
+    "#FFB7B2", // coral suave
+    "#C7CEEA", // celeste lavanda
+  ];
+
+  // Asignar color según el ID del técnico
+  document.querySelectorAll(".badge-tecnico").forEach(badge => {
+    const id = parseInt(badge.dataset.tecnicoId, 10);
+    const color = coloresPastel[id % coloresPastel.length];
+    badge.style.backgroundColor = color;
+    badge.style.borderColor = color;
+  });
+
+</script>

@@ -1,0 +1,291 @@
+<!-- ====== ENCABEZADO UNIVERSAL (CON LOGO) ====== -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between mt-4">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>"
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      📜 Historial del Ticket 
+      <span class="text-primary">#<%= ticket.id %></span>
+    </h2>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+
+</div>
+<!-- ========== FIN ENCABEZADO ========== -->
+
+
+<!-- ========== CONTENIDO PRINCIPAL ========== -->
+<div class="container historial-wrapper mt-3">
+
+  <p class="text-center text-secondary mb-2">
+    <strong>Solicitante:</strong> <%= ticket.nombre %> |
+    <strong>Estado actual:</strong> 
+    <span class="badge bg-info"><%= ticket.estado %></span>
+  </p>
+
+  <% if (ticket.tecnico_nombre) { %>
+    <p class="text-center text-primary fw-bold mb-4">
+      👨‍🔧 Técnico asignado: <%= ticket.tecnico_nombre %>
+    </p>
+  <% } %>
+
+  <!-- CARD INFO -->
+  <div class="card shadow-lg mb-4 ticket-card">
+    <div class="card-body">
+      <h5 class="titulo-seccion">📝 Descripción original:</h5>
+      <p class="ticket-text border rounded p-3 bg-light"><%= ticket.descripcion %></p>
+
+      <% if (ticket.descripcion_operacion) { %>
+        <h5 class="titulo-seccion mt-3">🔧 Última operación realizada:</h5>
+        <p class="ticket-text border rounded p-3 bg-light"><%= ticket.descripcion_operacion %></p>
+      <% } %>
+
+      <!-- Botón pequeño, fijo en esquina inferior derecha de la tarjeta -->
+      <a href="/admin/tickets/cerrados" class="btn btn-sm btn-dark btn-volver-ticket">
+        ⬅ Volver
+      </a>
+
+    </div>
+  </div>
+
+  <!-- TIMELINE TITLE -->
+  <h4 class="fw-bold mb-4 text-center">🕒 Línea de tiempo del ticket</h4>
+
+  <% if (historial.length === 0) { %>
+    <p class="text-muted text-center">Este ticket aún no tiene movimientos registrados.</p>
+  <% } else { %>
+
+    <div class="timeline">
+      <% historial.forEach((evento, index) => { 
+        const accion = evento.accion.toLowerCase();
+      %>
+
+        <div class="timeline-item animated-item">
+
+          <!-- ICONO -->
+          <div class="timeline-icon">
+            <% if (accion.includes("creado")) { %>
+              📝
+            <% } else if (accion.includes("asignado")) { %>
+              🧑‍🔧
+            <% } else if (accion.includes("progreso") || accion.includes("actualizado")) { %>
+              ⏳
+            <% } else if (accion.includes("cerrado") || accion.includes("cierre")) { %>
+              🔒
+            <% } else { %>
+              ❗
+            <% } %>
+          </div>
+
+          <!-- CONTENIDO -->
+          <div class="timeline-content shadow-sm">
+            <span class="fecha"><%= new Date(evento.fecha).toLocaleString("es-ES") %></span>
+
+            <h5 class="mt-2 fw-bold"><%= evento.accion %></h5>
+
+            <p class="mb-1"><strong>Usuario:</strong> <%= evento.usuario %></p>
+
+            <% if (evento.descripcion) { %>
+              <p><%= evento.descripcion %></p>
+            <% } %>
+          </div>
+        </div>
+
+      <% }) %>
+    </div>
+
+  <% } %>
+
+</div>
+<!-- ================== FIN DEL CONTAINER PRINCIPAL ================== -->
+
+
+<style>
+  /* 🌟 ENCABEZADO UNIVERSAL (MISMO MODELO QUE PANEL ADMIN) */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+  /* ===== Texto oscuro ===== */
+  .historial-wrapper h2,
+  .historial-wrapper h4,
+  .historial-wrapper p,
+  .historial-wrapper h5 {
+    color: #333 !important;
+  }
+
+  /* ===== Card principal ===== */
+  .ticket-card {
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    position: relative; /* para posicionar el botón dentro */
+  }
+
+  .ticket-text {
+    color: #222 !important;
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .titulo-seccion {
+    color: #222 !important;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Botón "Volver" dentro de la tarjeta */
+  .btn-volver-ticket {
+    position: absolute;
+    left: 24px;
+    bottom: 20px;
+    border-radius: 8px;
+    padding: 4px 14px;
+    font-size: 0.9rem;
+  }
+
+  /* ===== Línea de Tiempo ===== */
+  .timeline {
+    margin: 20px 0;
+    padding-left: 40px;
+    border-left: 3px solid #0d6efd;
+  }
+
+  .timeline-item {
+    display: flex;
+    position: relative;
+    margin-bottom: 35px;
+    gap: 12px;
+  }
+
+  /* ===== Animación de entrada ===== */
+  .animated-item {
+    opacity: 0;
+    animation: fadeSlideIn 0.6s ease forwards;
+  }
+
+  .animated-item:nth-child(1) { animation-delay: 0.1s; }
+  .animated-item:nth-child(2) { animation-delay: 0.2s; }
+  .animated-item:nth-child(3) { animation-delay: 0.3s; }
+  .animated-item:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes fadeSlideIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== Ícono ===== */
+  .timeline-icon {
+    width: 46px;
+    height: 46px;
+    background: #ffffff;
+    border: 3px solid #0d6efd;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    left: -26px;
+    transition: transform .3s ease, box-shadow .3s ease;
+    z-index: 5;
+  }
+
+  /* ===== Tarjeta del evento ===== */
+  .timeline-content {
+    background: #fff;
+    padding: 18px;
+    border-radius: 12px;
+    width: 100%;
+    border-left: 6px solid #0d6efd;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s;
+  }
+
+  /* ===== Hover PRO ===== */
+  .timeline-item:hover .timeline-content {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+  }
+
+  .timeline-item:hover .timeline-icon {
+    transform: translateY(-10px) scale(1.25);
+    box-shadow: 0 0 15px #0d6efdaa;
+  }
+
+  /* ===== Colores alternos del contenido ===== */
+  .timeline-item:nth-child(1) .timeline-content { background:#e7f1ff; border-color:#0d6efd; }
+  .timeline-item:nth-child(2) .timeline-content { background:#e9f7ef; border-color:#198754; }
+  .timeline-item:nth-child(3) .timeline-content { background:#fff9e6; border-color:#ffc107; }
+  .timeline-item:nth-child(4) .timeline-content { background:#ffe6e9; border-color:#dc3545; }
+  .timeline-item:nth-child(5) .timeline-content { background:#f3e8ff; border-color:#6f42c1; }
+
+  .timeline-item:nth-child(6n+1) .timeline-content { background:#e7f1ff;border-color:#0d6efd; }
+  .timeline-item:nth-child(6n+2) .timeline-content { background:#e9f7ef;border-color:#198754; }
+  .timeline-item:nth-child(6n+3) .timeline-content { background:#fff9e6;border-color:#ffc107; }
+  .timeline-item:nth-child(6n+4) .timeline-content { background:#ffe6e9;border-color:#dc3545; }
+  .timeline-item:nth-child(6n+5) .timeline-content { background:#f3e8ff;border-color:#6f42c1; }
+
+  /* Fecha */
+  .fecha {
+    color:#555;
+    font-size:0.9rem;
+  }
+</style>

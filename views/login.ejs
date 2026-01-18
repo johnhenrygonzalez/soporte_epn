@@ -1,0 +1,79 @@
+<!-- ===== LOGO CENTRADO ENCIMA DEL LOGIN ===== -->
+<div class="login-logo-container text-center" style="margin-top: 0px; margin-bottom: -55px;">
+  <% if (logo) { %>
+    <img src="/uploads/<%= logo %>" alt="Logo institución" class="logo-publico">
+  <% } %>
+</div>
+
+<section class="login-container">
+  <div class="login-card">
+
+    <h2 class="titulo-publico">Iniciar sesión</h2>
+
+    <% if (error) { %>
+      <p class="error-message"><%= error %></p>
+    <% } %>
+
+    <form action="/login" method="post" class="login-form">
+
+      <div class="form-group">
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" name="correo" placeholder="usuario@correo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="contrasena">Contraseña:</label>
+        <input type="password" id="contrasena" name="contrasena" placeholder="Tu contraseña" required>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="fa fa-sign-in"></i> Ingresar
+      </button>
+
+    </form>
+  </div>
+</section>
+
+<!-- Enlace discreto (ahora a 0.5 cm del contenedor) -->
+<div class="text-center fw-bold" style="margin-top: -50px;">
+  <a href="/" style="font-size: 13px; opacity: 0.6; text-decoration: none;">
+    Volver a solicitud de soporte
+  </a>
+</div>
+
+<style>
+.login-logo-container {
+  width: 100%;
+}
+
+.login-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.15));
+}
+
+.titulo-publico {
+    font-size: 28px !important;
+    font-weight: bold !important;
+    color: #1a57d8 !important;
+    text-align: center !important;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+}
+
+  /* Ocultar el header general SOLO en esta vista */
+  header, .navbar, .top-header, #header, .app-header {
+    display: none !important;
+  }
+
+.logo-publico {
+    width: 150px !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+</style>

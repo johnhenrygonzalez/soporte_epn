@@ -1,0 +1,241 @@
+<!-- ================= ENCABEZADO UNIVERSAL ================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>" 
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-ticket-alt me-2"></i> Auditoría de Tickets
+    </h2>
+    <p class="subtitulo-admin">
+      <%= usuarioSesion?.nombre || "Administrador" %>
+    </p>
+  </div>
+
+  <div class="encabezado-espaciador"></div>
+</div>
+
+<!-- ================= CONTENIDO ================= -->
+<main class="container py-4">
+
+  <!-- ================= FILTROS ================= -->
+  <form class="row g-3 mb-4" method="GET">
+
+    <div class="col-md-3">
+      <label class="form-label">Estado</label>
+      <select name="estado" class="form-select">
+        <option value="">Todos</option>
+        <option value="Pendiente" <%= filtros?.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
+        <option value="Asignado" <%= filtros?.estado === 'Asignado' ? 'selected' : '' %>>Asignado</option>
+        <option value="Cerrado" <%= filtros?.estado === 'Cerrado' ? 'selected' : '' %>>Cerrado</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Técnico</label>
+      <select name="tecnico_id" class="form-select">
+        <option value="">Todos</option>
+        <% tecnicos.forEach(t => { %>
+          <option value="<%= t.id %>" <%= filtros?.tecnico_id == t.id ? 'selected' : '' %>>
+            <%= t.nombre %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">Ticket</label>
+      <input type="number" name="ticket_id" class="form-control" placeholder="#"
+             value="<%= filtros?.ticket_id || '' %>">
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">Desde</label>
+      <input type="date" name="fecha_desde" class="form-control"
+             value="<%= filtros?.fecha_desde || '' %>">
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">Hasta</label>
+      <input type="date" name="fecha_hasta" class="form-control"
+             value="<%= filtros?.fecha_hasta || '' %>">
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-primary w-100">Filtrar</button>
+    </div>
+
+  </form>
+
+  <!-- ================= TABLA ================= -->
+  <table class="table table-bordered table-striped align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Fecha</th>
+        <th>Administrador</th>
+        <th>Ticket</th>
+        <th>Acción</th>
+        <th>Cambio</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% auditoria.forEach(a => { %>
+        <tr>
+          <td><%= new Date(a.fecha).toLocaleString() %></td>
+          <td><%= a.admin || 'Sistema' %></td>
+
+          <td>
+            <strong>#<%= a.ticket_id %></strong><br>
+            <a href="/admin/ticket/<%= a.ticket_id %>/historial"
+               class="btn btn-sm btn-outline-primary mt-1">
+              Ver historial
+            </a>
+          </td>
+
+          <td>
+            <span class="badge bg-dark">
+              <%= a.accion.replaceAll('_', ' ') %>
+            </span>
+          </td>
+
+          <!-- ================= CAMBIOS ================= -->
+          <td>
+            <%
+              const antes = a.antes_json || {};
+              const despues = a.despues_json || {};
+              const cambios = [];
+
+              const badgeEstado = e =>
+                e === 'Pendiente' ? 'warning' :
+                e === 'Asignado' ? 'primary' :
+                e === 'Cerrado'  ? 'success' : 'secondary';
+
+              if (antes.estado !== undefined && antes.estado !== despues.estado) {
+                cambios.push(`
+                  <div class="cambio-linea">
+                    <strong>Estado:</strong>
+                    <span class="badge bg-${badgeEstado(antes.estado)}">${antes.estado}</span>
+                    →
+                    <span class="badge bg-${badgeEstado(despues.estado)}">${despues.estado}</span>
+                  </div>
+                `);
+              }
+
+              if (a.tecnico_antes !== a.tecnico_despues) {
+                const aTec = a.tecnico_antes || 'Sin asignar';
+                const dTec = a.tecnico_despues || 'Sin asignar';
+                const badgeTec = n => (!n || n === 'Sin asignar') ? 'secondary' : 'success';
+
+                cambios.push(`
+                  <div class="cambio-linea">
+                    <strong>Técnico:</strong>
+                    <span class="badge bg-${badgeTec(aTec)}">${aTec}</span>
+                    →
+                    <span class="badge bg-${badgeTec(dTec)}">${dTec}</span>
+                  </div>
+                `);
+              }
+
+              if (cambios.length === 0 && a.accion === 'CREAR_TICKET') {
+                cambios.push(`
+                  <div class="cambio-linea">
+                    <span class="badge bg-success">Ticket creado</span>
+                  </div>
+                `);
+              }
+
+              if (cambios.length === 0) {
+                cambios.push(`
+                  <div class="cambio-linea text-muted">
+                    Cambio registrado sin formato específico
+                  </div>
+                `);
+              }
+            %>
+
+            <div class="cambio-box">
+              <%- cambios.join('') %>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+
+      <% if (pagina > 1) { %>
+        <li class="page-item">
+          <a class="page-link" href="?pagina=<%= pagina - 1 %>">Anterior</a>
+        </li>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPaginas; i++) { %>
+        <li class="page-item <%= i === pagina ? 'active' : '' %>">
+          <a class="page-link" href="?pagina=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (pagina < totalPaginas) { %>
+        <li class="page-item">
+          <a class="page-link" href="?pagina=<%= pagina + 1 %>">Siguiente</a>
+        </li>
+      <% } %>
+
+    </ul>
+  </nav>
+
+</main>
+
+<!-- ================= ESTILOS ================= -->
+<style>
+  .encabezado-admin {
+    background: #fff;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo { width: 120px; display: flex; justify-content: center; }
+  .logo-admin { width: 85px; height: 85px; object-fit: contain; }
+  .encabezado-titulos { flex-grow: 1; text-align: center; }
+  .titulo-admin { font-size: 28px; font-weight: bold; }
+  .subtitulo-admin { font-size: 15px; color: #555; }
+  .encabezado-espaciador { width: 120px; }
+
+  /* === Alineación CAMBIOS === */
+  .cambio-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .cambio-linea {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .cambio-linea strong {
+    min-width: 70px;
+  }
+</style>

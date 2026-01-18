@@ -1,0 +1,35 @@
+<%- include('partials/header', { title: 'Tickets Asignados' }); %>
+<%- include('partials/menu_admin'); %>
+
+<div class="container">
+  <h1>🎯 Tickets Asignados</h1>
+
+  <% if (tickets.length === 0) { %>
+    <p>No hay tickets asignados actualmente.</p>
+  <% } else { %>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Descripción</th>
+          <th>Asignado a</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tickets.forEach(ticket => { %>
+          <tr>
+            <td><%= ticket.id %></td>
+            <td><%= ticket.titulo %></td>
+            <td><%= ticket.descripcion %></td>
+            <td><%= ticket.asignado_a || 'Sin asignar' %></td>
+            <td><%= ticket.estado %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/footer'); %>

@@ -1,0 +1,83 @@
+<style>
+  /* ================================================================
+     FIX GLOBAL PARA ESTA VISTA – TODO EL TEXTO EN NEGRO
+     (Corrección definitiva del problema de letras blancas)
+     ================================================================ */
+  .card-2fa,
+  .card-2fa * {
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important; /* Chrome */
+  }
+
+  /* ========================= INPUT =============================== */
+  .card-2fa input.form-control {
+    background-color: #fff !important;
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+
+  /* Placeholder gris */
+  .card-2fa input.form-control::placeholder {
+    color: #555 !important;
+  }
+
+  /* ========================= TARJETA ============================= */
+  .card-2fa {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Quitar overlays de Bootstrap */
+  .card-2fa::before,
+  .card-2fa::after {
+    content: none !important;
+  }
+
+  .card-2fa:hover {
+    background-color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+    transform: none !important;
+  }
+
+  /* Fix extra: algunas plantillas ponen overlays desde .card */
+  .card {
+    background-image: none !important;
+  }
+</style>
+
+<div class="container mt-5" style="max-width: 500px;">
+  <div class="card card-2fa p-4 text-center">
+
+    <h3 class="mb-3">🔐 Activar Autenticación 2FA</h3>
+    <p>Escanea este código QR con Google Authenticator o Microsoft Authenticator</p>
+
+    <% if (qr) { %>
+      <img src="<%= qr %>" class="img-fluid mb-3" />
+    <% } %>
+
+    <p>Luego ingresa el código de 6 dígitos:</p>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form action="/activar-2fa" method="POST">
+      <input type="hidden" name="secret" value="<%= secret %>" />
+
+      <input 
+        type="text" 
+        name="token"
+        placeholder="Código 2FA"
+        required
+        class="form-control text-center mb-3"
+      />
+
+      <button class="btn btn-primary w-100">Activar seguridad</button>
+    </form>
+
+  </div>
+</div>

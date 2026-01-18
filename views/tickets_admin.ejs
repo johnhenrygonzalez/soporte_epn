@@ -1,0 +1,453 @@
+<!-- ================= ENCABEZADO UNIVERSAL (MODELO OFICIAL) ================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>"
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-ticket-alt me-2"></i>
+      <%= estado === 'Pendiente' 
+            ? 'Tickets Por Asignar' 
+            : (estado === 'Cerrado' ? 'Tickets Cerrados' : 'Tickets') 
+      %>
+    </h2>
+
+    <p class="subtitulo-admin">
+      <%= (usuarioSesion && usuarioSesion.nombre) || 'Administrador' %>
+    </p>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+
+</div>
+
+
+<!-- ================= LOADER CORREOS ================= -->
+<div id="loadingCorreo">
+  <div class="modal-box" id="modalContent">
+      <div class="loader-spinner" id="loaderIcon"></div>
+      <p id="loaderText" style="font-size:18px; margin-top:10px;">
+        ⏳ Enviando correos, por favor espere...
+      </p>
+  </div>
+</div>
+
+<!-- ================= TABLA DE TICKETS ================= -->
+<main class="container my-4">
+
+  <% if (tickets.length > 0) { %>
+
+    <table class="tabla-admin">
+      <thead>
+        <tr>
+          <th class="text-center">ID</th>
+          <th class="text-center">Nombre</th>
+          <th class="text-center">Correo</th>
+          <th class="text-center">Estado</th>
+          <th class="text-center">Solicitud</th>
+          <th class="text-center">Fecha de Creación</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% tickets.forEach(ticket => { %>
+
+        <tr>
+          <td><%= ticket.id %></td>
+          <td><%= ticket.nombre %></td>
+          <td><%= ticket.correo %></td>
+          
+          <!-- ESTADO -->
+          <td class="text-center">
+            <span class="estado <%= ticket.estado.replace(' ', '_') %>">
+              <%= ticket.estado %>
+            </span>
+          </td>
+
+          <!-- VER -->
+          <td class="text-center">
+            <button 
+              class="btn btn-sm btn-dark verDescripcionBtn"
+              data-descripcion="<%= ticket.descripcion %>"
+            >
+              Ver Solicitud
+            </button>
+          </td>
+
+          <td><%= new Date(ticket.fecha_creacion).toLocaleString("es-ES") %></td>
+
+          <!-- ACCIONES -->
+          <td>
+            <% if (ticket.estado === 'Pendiente') { %>
+              <button class="btn-asignar" onclick="abrirModal(<%= ticket.id %>)">
+                Asignar técnico
+              </button>
+            <% } %>
+
+            <% if (ticket.estado === 'Cerrado') { %>
+              <a href="/admin/ticket/<%= ticket.id %>/historial"
+                 class="btn-historial mt-2 d-block">
+                📜 Historial
+              </a>
+            <% } %>
+          </td>
+        </tr>
+
+        <% }) %>
+      </tbody>
+
+    </table>
+
+  <% } else { %>
+
+    <div class="sin-registros">
+      No hay tickets registrados en este momento.
+    </div>
+
+  <% } %>
+
+  <div class="mt-3">
+    <a href="/admin" (cambiar solo esto por ruta correcta)
+      class="fw-bold text-decoration-none">
+      ⬅ Volver al Menu
+    </a>
+  </div>
+  
+</main>
+
+
+<!-- ================= MODAL ASIGNAR ================= -->
+<div class="modal" id="modalAsignar">
+  <div class="modal-content">
+    <h3>Asignar técnico</h3>
+
+    <select id="tecnicoSelect">
+      <% tecnicos.forEach(tec => { %>
+        <option value="<%= tec.id %>"><%= tec.nombre %></option>
+      <% }) %>
+    </select>
+
+    <div>
+      <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-confirmar" onclick="asignarTecnico()">Asignar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESCRIPCIÓN COMPLETA -->
+<div class="modal fade" id="modalDescripcion" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">Solicitud completa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="modalDescripcionTexto" style="white-space: pre-line;"></div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+<script>
+  let ticketSeleccionado = null;
+
+  function abrirModal(id) {
+    ticketSeleccionado = id;
+    document.getElementById("modalAsignar").style.display = "flex";
+  }
+
+  function cerrarModal() {
+    document.getElementById("modalAsignar").style.display = "none";
+  }
+
+  function mostrarLoadingCorreo() {
+    const modal = document.getElementById("loadingCorreo");
+    modal.style.display = "flex";
+    setTimeout(() => { modal.style.opacity = "1"; }, 10);
+  }
+
+  function ocultarLoadingCorreo() {
+    const modal = document.getElementById("loadingCorreo");
+    modal.style.opacity = "0";
+    setTimeout(() => { modal.style.display = "none"; }, 400);
+  }
+
+  async function asignarTecnico() {
+    const tecnicoId = document.getElementById("tecnicoSelect").value;
+    if (!tecnicoId) return;
+
+    mostrarLoadingCorreo();
+
+    const loaderIcon = document.getElementById("loaderIcon");
+    const loaderText = document.getElementById("loaderText");
+
+    try {
+      const res = await fetch(`/admin/asignar-tecnico/${ticketSeleccionado}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tecnicoId }),
+      });
+
+      const data = await res.json();
+
+      // Cambiar loading → check animado
+      loaderIcon.classList.remove("loader-spinner");
+      loaderIcon.innerHTML = `<div class="checkmark">✔</div>`;
+
+      loaderText.innerHTML = "Técnico asignado y correos enviados";
+
+      // Desvanecer todo luego de 1.5 segundos
+      setTimeout(() => {
+        ocultarLoadingCorreo();
+        cerrarModal();
+        location.reload();
+      }, 1500);
+
+    } catch (error) {
+
+      loaderIcon.classList.remove("loader-spinner");
+      loaderIcon.innerHTML = `<div class="checkmark" style="color:#dc3545;">✖</div>`;
+
+      loaderText.innerHTML = "Error enviando correos.";
+
+      setTimeout(() => {
+        ocultarLoadingCorreo();
+      }, 1800);
+    }
+  }
+  
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".verDescripcionBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const texto = btn.dataset.descripcion;
+      document.getElementById("modalDescripcionTexto").innerText = texto;
+      new bootstrap.Modal(document.getElementById("modalDescripcion")).show();
+    });
+  });
+});
+</script>
+
+
+<!-- ================= ESTILOS ================= -->
+<style>
+
+  /* === Encabezado universal estandar === */
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    margin: 0;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+
+
+  /* === Tabla === */
+  .tabla-admin {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+
+  th {
+    background: #101010;
+    color: white;
+    padding: 12px;
+  }
+
+  td {
+    padding: 10px 12px;
+  }
+
+  tr:nth-child(even) { background: #f9f9f9; }
+  tr:hover { background: #eef5ff; }
+
+  /* Estado */
+  .estado {
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  .Pendiente { background:#ffc107; color:#333; }
+  .En_progreso { background:#17a2b8; color:white; }
+  .Asignado { background:#6f42c1; color:white; }
+  .Cerrado { background:#28a745; color:white; }
+
+  /* Botones */
+  .btn-asignar {
+    background:#28a745;
+    color:white;
+    padding:6px 10px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+  }
+
+  .btn-historial {
+    background:#0dcaf0;
+    padding:6px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-block;
+  }
+
+  /* Modal */
+  .modal {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,.4);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+  }
+
+  .modal-content {
+    background:white;
+    padding:20px 30px;
+    border-radius:10px;
+    width:450px;
+    text-align:center;
+  }
+
+  .col-descripcion {
+    width: 100px; /* Ajusta al gusto */
+  }
+
+  .col-descripcion-texto {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* "…" */
+  }
+
+  .btn-dark {
+    background-color: #000 !important;
+    border: none;
+  }
+
+/* Fondo oscuro detrás del modal */
+#loadingCorreo {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Contenedor del modal */
+#loadingCorreo .modal-box {
+  background: white;
+  padding: 35px;
+  border-radius: 15px;
+  text-align: center;
+  width: 360px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: popIn 0.3s ease;
+}
+
+/* Animación suave */
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Ícono circular de carga */
+.loader-spinner {
+  width: 55px;
+  height: 55px;
+  border: 6px solid #ddd;
+  border-top-color: #4e73df;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 18px auto;
+}
+
+/* Animación de giro */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Icono check animado */
+.checkmark {
+  font-size: 55px;
+  color: #28a745;
+  animation: bounce 0.4s ease;
+}
+
+@keyframes bounce {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+</style>

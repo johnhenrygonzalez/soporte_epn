@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Asignar Tickets</h1>
+
+  <h2 class="text-primary mb-3">Tickets pendientes de asignación</h2>
+
+  <% if (ticketsPendientes.length === 0) { %>
+    <div class="alert alert-success text-center">
+      🎉 No hay tickets pendientes por asignar
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark text-center">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Descripción</th>
+            <th>Fecha</th>
+            <th>Asignar a</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% ticketsPendientes.forEach(ticket => { %>
+            <tr>
+              <td class="text-center"><%= ticket.id %></td>
+              <td><%= ticket.nombre %></td>
+              <td><%= ticket.correo %></td>
+              <td><%= ticket.descripcion %></td>
+              <td><%= new Date(ticket.fecha_creacion).toLocaleString("es-ES") %></td>
+              <td>
+                <form action="/admin/tickets/asignar/<%= ticket.id %>" method="POST" class="d-flex gap-2">
+                  <select name="tecnico_id" class="form-select form-select-sm" required>
+                    <option value="">-- Seleccionar técnico --</option>
+                    <% tecnicos.forEach(tec => { %>
+                      <option value="<%= tec.id %>"><%= tec.nombre %></option>
+                    <% }) %>
+                  </select>
+              </td>
+              <td>
+                  <button type="submit" class="btn btn-primary btn-sm">
+                    Asignar
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

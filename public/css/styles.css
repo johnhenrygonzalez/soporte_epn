@@ -1,0 +1,1021 @@
+/* styles.css - dashboard styles */
+
+/* =========================================================
+   STYLES.CSS — versión optimizada para Bootstrap 5
+   ========================================================= */
+
+/* 🎨 COLORES DE MARCA (puedes personalizar) */
+:root {
+  --color-primario: #004aad;
+  --color-secundario: #198754;
+  --color-acento: #ffb703;
+  --color-fondo: #f8f9fa;
+  --color-texto: #212529;
+}
+
+/* 🧍‍♂️ BASE GENERAL */
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* NAVBAR */
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .navbar-brand i {
+  color: var(--color-acento);
+}
+
+/* LINKS */
+a {
+  color: var(--color-primario);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-secundario);
+}
+
+/* BOTONES PERSONALIZADOS */
+.btn-primary {
+  background-color: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.btn-primary:hover {
+  background-color: #003780;
+  border-color: #003780;
+}
+
+.btn-outline-primary {
+  color: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primario);
+  color: #fff;
+}
+
+/* TARJETAS */
+.card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* FORMULARIOS */
+.form-control:focus {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 0.2rem rgba(0, 74, 173, 0.25);
+}
+
+/* TABLAS */
+.table {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: var(--color-primario);
+  color: #fff;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 74, 173, 0.08);
+}
+
+/* ALERTAS */
+.alert-primary {
+  background-color: var(--color-primario);
+  color: #fff;
+  border: none;
+}
+
+/* FOOTER SIMPLE */
+footer {
+  background-color: #212529;
+  color: #dcdcdc;
+  padding: 1rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: #ffc107;
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar .nav-link {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Ajuste de compatibilidad con Bootstrap */
+* {
+  box-sizing: border-box;
+}
+
+/* Sobrescribe el color de botones si quieres mantener tu paleta */
+.btn-primary {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+}
+
+.btn-primary:hover {
+  background-color: #094ba9;
+}
+
+/* Bordes redondeados consistentes con tu diseño */
+.card, .btn, .form-control {
+  border-radius: 10px !important;
+}
+
+/* =============================
+   🌙 Estilos generales
+   ============================= */
+body.dashboard-body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+}
+
+/* =============================
+   🔝 NAVBAR SUPERIOR
+   ============================= */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #0b1622;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.navbar-logo i {
+  color: #00bcd4;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.navbar-links li a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.navbar-links li a:hover {
+  color: #0b1622;
+  background: #00bcd4;
+}
+
+.logout {
+  background: #e74c3c;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.logout:hover {
+  background: #c0392b;
+}
+
+/* Botón hamburguesa */
+.menu-toggle {
+  display: none;
+  cursor: pointer;
+  color: #fff;
+}
+.menu-toggle i { font-size: 1.4rem; }
+
+/* =============================
+   🏷️ ENCABEZADO PRINCIPAL
+   ============================= */
+.dashboard-header {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  border-radius: 0 0 12px 12px;
+  margin: 0;
+}
+
+.dashboard-header h1 {
+  font-size: 1.6rem;
+  color: #222;
+  margin: 0 0 6px;
+}
+
+.dashboard-header .bienvenida {
+  font-size: 0.98rem;
+  color: #555;
+  margin: 0;
+}
+
+/* =============================
+   🧩 TARJETAS DEL PANEL — VERSIÓN 3D + ANIMADAS
+   ============================= */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1.2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  perspective: 1000px; /* para efecto 3D */
+}
+
+.card {
+  position: relative;
+  border-radius: 18px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+/* 💫 Hover con efecto flotante 3D */
+.card:hover {
+  transform: translateY(-10px) rotateX(5deg) rotateY(-3deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* 🎨 Colores con degradado más visible */
+.card.blue   { background: linear-gradient(45deg, #1a73e8 0%, #0056b3 100%); }
+.card.purple { background: linear-gradient(45deg, #9c27b0 0%, #6a1b9a 100%); }
+.card.orange { background: linear-gradient(45deg, #ff9800 0%, #f57c00 100%); }
+.card.green  { background: linear-gradient(45deg, #4caf50 0%, #2e7d32 100%); }
+.card.gray   { background: linear-gradient(45deg, #607d8b 0%, #37474f 100%); }
+.card.cyan   { background: linear-gradient(45deg, #00bcd4 0%, #008ba3 100%); }
+.card.red    { background: linear-gradient(45deg, #d40015 0%, #e472b3 100%); }
+
+/* 🌀 Icono */
+.icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  border-radius: 50%;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.8rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* 🔹 Contenido centrado */
+.card-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.card-content h2 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin: 0;
+  color: #fff;
+}
+
+.card-content p {
+  font-size: 1rem;
+  margin-top: 6px;
+  opacity: 0.95;
+  color: #fff;
+}
+
+/* ✨ Brillo diagonal */
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 80%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.12);
+  transform: skewX(-25deg);
+  transition: left 0.6s ease;
+}
+
+.card:hover::after {
+  left: 60%;
+}
+
+/* =============================
+   📱 RESPONSIVE DESIGN
+   ============================= */
+@media (max-width: 900px) {
+  .navbar-links { display: none; position: absolute; top: 60px; right: 10px; background: #0b1622; padding: 1rem; border-radius: 8px; flex-direction: column; gap: 0.6rem; }
+  .navbar-links.show { display: flex; }
+  .menu-toggle { display: block; }
+  .cards-container { padding: 0 0.8rem 1.2rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+
+/* =============================
+   ✨ Animaciones suaves
+   ============================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card { animation: fadeIn 0.55s ease; }
+
+/* ==== TABLA DE USUARIOS ==== */
+.list-container {
+  width: 90%;
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.styled-table th, .styled-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.styled-table th {
+  background: #2b3a67;
+  color: white;
+}
+
+.styled-table tr:hover {
+  background-color: #f2f2f2;
+}
+
+.no-data {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.btn-assign {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-assign:hover {
+  background-color: #218838;
+}
+
+.asignado {
+  color: #555;
+  font-weight: bold;
+}
+
+.btn-volver {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 8px 15px;
+  background: #003366;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.btn-volver:hover {
+  background: #0055aa;
+}
+
+.form-usuario {
+  background: white;
+  padding: 2rem;
+  max-width: 500px;
+  margin: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.form-usuario label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-usuario input,
+.form-usuario select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-usuario button {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-usuario button:hover {
+  background: #0055aa;
+}
+
+.btn-volver {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 8px 15px;
+  background: #003366;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.btn-volver:hover {
+  background: #0055aa;
+}
+
+.btn-crear {
+  display: inline-block;
+  margin: 10px 0 20px 0;
+  background: #28a745;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.btn-crear:hover {
+  background: #218838;
+}
+
+.tabla-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tabla-usuarios th, .tabla-usuarios td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.tabla-usuarios th {
+  background: #003366;
+  color: white;
+}
+
+.tabla-usuarios tr:hover {
+  background: #f1f1f1;
+}
+
+.acciones a {
+  margin: 0 5px;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: white;
+}
+
+.btn-editar {
+  background: #007bff;
+}
+
+.btn-editar:hover {
+  background: #0056b3;
+}
+
+.btn-eliminar {
+  background: #dc3545;
+}
+
+.btn-eliminar:hover {
+  background: #b02a37;
+}
+
+.mensaje-vacio {
+  background: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-style: italic;
+  text-align: center;
+  max-width: 400px;
+  margin: 30px auto;
+}
+
+.error-container {
+  margin-top: 80px;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-title {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 15px;
+}
+
+.error-message {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.error-container .btn-volver {
+  display: inline-block;
+  background-color: #003366;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.error-container .btn-volver:hover {
+  background-color: #0055aa;
+}
+
+/* 🎨 Ajustes del menú superior */
+.navbar-links a {
+  color: white !important;          /* Siempre blancos */
+  text-decoration: none !important; /* Sin subrayado */
+  font-weight: 500;
+  margin-left: 15px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.navbar-links a:hover {
+  opacity: 0.8; /* Pequeño efecto visual al pasar el mouse */
+  text-decoration: none;
+}
+
+.navbar-links a:visited,
+.navbar-links a:focus,
+.navbar-links a:active {
+  color: white !important;
+  text-decoration: none !important;
+}
+
+/* === FORMULARIO DE SOPORTE (index.ejs) === */
+.support-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f6f8fa;
+  padding: 2rem;
+}
+
+.support-card {
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.support-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.support-card h2 {
+  text-align: center;
+  color: #0b5ed7;
+  font-weight: 700;
+  font-size: 1.7rem;
+  margin-bottom: 1.8rem;
+}
+
+.support-form .form-group {
+  margin-bottom: 1.3rem;
+}
+
+.support-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #333333;
+}
+
+.support-form input,
+.support-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cfcfcf;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+  border-color: #0b5ed7;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.2);
+}
+
+/* === BOTÓN DE ENVÍO AJUSTADO AL ANCHO DEL TEXTAREA === */
+.btn-enviar {
+  width: calc(100% + 2px); /* Compensa el borde del textarea */
+  margin-left: -1px;       /* Alinea perfectamente */
+  background-color: #0b5ed7;
+  color: #fff;
+  padding: 0.9rem;
+  border: 1px solid #0b5ed7; /* Mismo grosor visual */
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-sizing: border-box;
+}
+
+.btn-enviar:hover {
+  background-color: #094ba9;
+  transform: translateY(-2px);
+}
+
+.btn-enviar i {
+  margin-right: 6px;
+}
+
+/* 🔒 Icono de acceso del personal de soporte */
+.admin-access {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: #333;
+  font-size: 22px;
+  opacity: 0; /* 🔹 Oculto por defecto */
+  transition: all 0.3s ease;
+  text-decoration: none;
+  z-index: 5;
+}
+
+/* 🔹 Solo se muestra cuando el mouse está sobre el contenedor principal del formulario */
+.support-card:hover .admin-access {
+  opacity: 0.6;
+}
+
+/* 🔹 Efecto visual al pasar el cursor sobre el icono */
+.admin-access:hover {
+  opacity: 1;
+  color: #007bff;
+  transform: scale(1.2);
+}
+
+/* Asegura que el contenedor sea el contexto del posicionamiento */
+.support-card {
+  position: relative;
+}
+
+/* === LOGIN (Estilo sobrio y coherente con el resto del sistema) === */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f6f8fa;
+  padding: 2rem;
+}
+
+.login-card {
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.login-card h2 {
+  text-align: center;
+  color: #0b5ed7;
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-form .form-group {
+  margin-bottom: 1.2rem;
+}
+
+.login-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #333333;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cfcfcf;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.login-form input:focus {
+  border-color: #0b5ed7;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.2);
+}
+
+.btn-login {
+  width: 100%;
+  background-color: #0b5ed7;
+  color: #fff;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-login:hover {
+  background-color: #094ba9;
+  transform: translateY(-2px);
+}
+
+.btn-login i {
+  margin-right: 6px;
+}
+
+.error-message {
+  color: #e63946;
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* === LISTADO DE TICKETS ASIGNADOS === */
+.tickets-container {
+  max-width: 1100px;
+  margin: 3rem auto;
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.tickets-container h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0b5ed7;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tickets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.tickets-table th,
+.tickets-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tickets-table th {
+  color: #333;
+  font-weight: 700;
+  background-color: #f6f8fa;
+}
+
+.tickets-table tr:hover {
+  background-color: #f2f6ff;
+  transition: background-color 0.3s ease;
+}
+
+.tickets-table td {
+  color: #444;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-indicator span {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-asignado span {
+  background-color: #a78bfa;
+}
+
+.status-enproceso span {
+  background-color: #0b5ed7;
+}
+
+.status-finalizado span {
+  background-color: #22c55e;
+}
+
+/* Centrar el contenido dentro de las tarjetas de estadísticas */
+.card-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* Centra verticalmente */
+  align-items: center;      /* Centra horizontalmente */
+  text-align: center;
+}
+
+.card-stats .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Asegura que el número se vea grande y centrado */
+.card-stats h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+/* 🎨 Colores personalizados */
+.purple { background: linear-gradient(135deg, #a24dd6, #8441b8); }
+.orange { background: linear-gradient(135deg, #f7a440, #f57c00); }
+.green { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+.gray { background: linear-gradient(135deg, #607d8b, #455a64); }
+.cyan { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+.teal { background: linear-gradient(135deg, #009688, #00695c); }
+.pirate-gold { background: linear-gradient(135deg, #BA8C00, #8C6A00);}
+.rosewood { background: linear-gradient(135deg, #65000B, #3E0007);}
+.aurora-blue { background: linear-gradient(135deg, #0A6CF1, #084EB4);}
+.ghost-purple { background: linear-gradient(135deg, #B8A3E0, #917CC2);}
+.lemon-chiffon { background: linear-gradient(135deg, #FFFACD, #F3EBA8);}
+.protego { background: linear-gradient(135deg, #0ABAB5, #088E8A);}
+.honeysuckle { background: linear-gradient(135deg, #D94F70, #B63B59);}
+.marzipan { background: linear-gradient(135deg, #F6CDA6, #E4B98C);}
+.peach { background: linear-gradient(135deg, #FFE5B4, #F6D39A);}
+.persian-pink { background: linear-gradient(135deg, #F77FBE, #D0639E);}
+.electric-barbie { background: linear-gradient(135deg, #FF5CCD, #D846A7);}
+.jordy-blue { background: linear-gradient(135deg, #8AB9F1, #6A9BD6);}
+.electric-blue { background: linear-gradient(135deg, #7DF9FF, #4FCAD1);}
+.rose-fog { background: linear-gradient(135deg, #E7BACB, #C897A8);}
+.half-baked { background: linear-gradient(135deg, #85C1DC, #6EAAC7);}
+.fringy-flower { background: linear-gradient(135deg, #BBD7A8, #9BC08A);}
+.pink-rose { background: linear-gradient(135deg, #E7A7C1, #C88AA5);}
+.jellyfish { background: linear-gradient(135deg, #DA70D6, #B657B2);}
+.watermelon-jelly { background: linear-gradient(135deg, #FF5A76, #D63E58);}
+
+/* 💠 Centrado y apariencia uniforme */
+.card-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none !important;
+  border: none;
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-stats:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-stats h2 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.card-stats p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.card-stats i {
+  opacity: 0.9;
+}
+
+.card-stats.clicked {
+  transform: scale(0.95);
+}
+
+.alerta-error {
+  background-color: #ffe6e6;
+  color: #b00020;
+  border: 1px solid #f5c2c7;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.tarjeta {
+  background-color: #f1f8ff; /* azul suave */
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: 0.3s;
+}
+
+.tarjeta:hover {
+  background-color: #dceeff;
+  transform: translateY(-3px);
+}
+
+.admin-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 30px auto;
+}

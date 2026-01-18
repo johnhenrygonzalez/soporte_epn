@@ -1,0 +1,168 @@
+<div class="modal-2fa-backdrop">
+  <div class="modal-2fa-container animate-pop">
+
+    <div class="text-center mb-3">
+      <% if (logo) { %>
+        <img src="/uploads/<%= logo %>" class="logo-2fa">
+      <% } %>
+    </div>
+
+    <h2 class="titulo-2fa">
+      🔐 Activar Autenticación en Dos Pasos
+    </h2>
+
+    <p class="texto-2fa">
+      Escanea este código QR con Google Authenticator o Microsoft Authenticator.
+    </p>
+
+    <div class="qr-box">
+      <img src="<%= qr %>" class="qr-img">
+    </div>
+
+    <p class="texto-2fa-small">
+      Si no puedes escanearlo, usa este código:
+    </p>
+
+    <div class="secret-box">
+      <code><%= secret %></code>
+    </div>
+
+    <form action="/admin/activar-2fa" method="POST" class="form-2fa">
+
+      <input type="hidden" name="secret" value="<%= secret %>">
+
+      <label class="label-2fa">Código de 6 dígitos:</label>
+      <input type="number" name="token" class="input-2fa" placeholder="000000" required>
+
+      <button class="btn-2fa" id="btnActivate">
+        Activar seguridad
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+<style>
+/* Fondo oscuro elegante */
+.modal-2fa-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+/* Tarjeta del modal */
+.modal-2fa-container {
+  background: #ffffff;
+  width: 420px;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+  text-align: center;
+}
+
+/* Animación de aparición */
+.animate-pop {
+  animation: pop 0.28s ease-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Logo */
+.logo-2fa {
+  width: 85px;
+  height: 85px;
+  object-fit: contain;
+}
+
+/* Título */
+.titulo-2fa {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Texto */
+.texto-2fa {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+/* QR */
+.qr-box {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 18px;
+}
+.qr-img {
+  width: 180px;
+  height: 180px;
+}
+
+/* Código secreto */
+.secret-box {
+  font-size: 14px;
+  padding: 12px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Input */
+.input-2fa {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+.label-2fa {
+  font-size: 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+/* Botón */
+.btn-2fa {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #1a57d8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.btn-2fa:hover {
+  background: #0f3fa2;
+}
+
+/* Efecto de carga */
+.btn-2fa.loading {
+  background: #0f3fa2;
+  position: relative;
+}
+.btn-2fa.loading::after {
+  content: "⏳ Activando...";
+}
+</style>
+
+<script>
+document.querySelector("#btnActivate").addEventListener("click", function() {
+  this.classList.add("loading");
+});
+</script>

@@ -1,0 +1,350 @@
+<!-- ===================== ENCABEZADO UNIVERSAL ===================== -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img src="/uploads/<%= logo %>" alt="Logo institucional" class="logo-admin">
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-chart-line me-2"></i> Estadísticas del Sistema
+    </h2>
+    <p class="subtitulo-admin"><%= usuarioSesion?.nombre || "Administrador" %></p>
+  </div>
+
+  <div class="encabezado-espaciador"></div>
+</div>
+
+
+<!-- FILTROS -->
+<div class="container mt-3 mb-4">
+  <form class="p-3 shadow-sm rounded bg-white" method="GET" action="/admin/estadisticas">
+
+    <div class="row justify-content-center align-items-end">
+
+      <div class="col-md-3">
+        <label class="fw-bold">Año principal:</label>
+        <select name="year" class="form-select">
+          <% for (let y = 2020; y <= new Date().getFullYear(); y++) { %>
+            <option value="<%= y %>" <%= year == y ? "selected" : "" %>><%= y %></option>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label class="fw-bold">Comparar con (opcional):</label>
+        <select name="compare" class="form-select">
+          <option value="">-- Sin comparación --</option>
+          <% for (let y = 2020; y <= new Date().getFullYear(); y++) { %>
+            <% if (y != year) { %>
+              <option value="<%= y %>" <%= compare == y ? "selected" : "" %>>
+                <%= y %>
+              </option>
+            <% } %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-2 mt-3 mt-md-0">
+        <button class="btn btn-primary w-100">Aplicar</button>
+      </div>
+
+      <div class="col-md-2 mt-3 mt-md-0">
+        <a href="/admin/estadisticas" class="btn btn-secondary w-100">Limpiar</a>
+      </div>
+
+    </div>
+
+  </form>
+</div>
+
+
+<!-- ===================== GRÁFICAS ===================== -->
+<div class="container">
+  <div class="row g-4">
+
+    <!-- TECNICOS -->
+    <div class="col-md-6">
+      <div class="p-3 shadow-sm rounded bg-white">
+        <h5 class="fw-bold text-center mb-2">
+          <i class="fas fa-user-cog me-2"></i>Tickets por Técnico
+        </h5>
+        <canvas id="graphTecnicos"></canvas>
+      </div>
+    </div>
+
+    <!-- POR ESTADO -->
+    <div class="col-md-6">
+      <div class="p-3 shadow-sm rounded bg-white">
+        <h5 class="fw-bold text-center mb-2">
+          <i class="fas fa-tags me-2"></i>Tickets por Estado
+        </h5>
+        <canvas id="graphEstado"></canvas>
+      </div>
+    </div>
+
+    <!-- POR MES -->
+    <div class="col-12">
+      <div class="p-3 shadow-sm rounded bg-white">
+        <h5 class="fw-bold text-center mb-2">
+          <i class="fas fa-calendar-alt me-2"></i>Tickets por Mes
+        </h5>
+        <canvas id="graphMeses"></canvas>
+      </div>
+    </div>
+
+    <!-- NUEVA GRÁFICA -->
+    <div class="col-12">
+      <div class="p-3 shadow-sm rounded bg-white">
+        <h5 class="fw-bold text-center mb-2">
+          <i class="fas fa-chart-bar me-2"></i>Comparativo de Técnicos por Mes
+        </h5>
+        <canvas id="chartTecnicosMes"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const year = "<%= year %>";
+  const compare = "<%= compare %>";
+
+  // ===========================
+  // OBTENER DATOS DEL BACKEND
+  // ===========================
+  const res = await fetch(`/admin/estadisticas/data?year=${year}&compare=${compare}`);
+  const datos = await res.json();
+
+
+  //-----------------------------------------
+  // 🎨 PALETAS DE COLORES ÚNICAS POR GRÁFICA
+  //-----------------------------------------
+
+  // 1) Técnicos (barras multicolor sin comparación)
+  const coloresTecnicos = [
+    "#FF6B6B", "#4ECDC4", "#FFD93D", "#1A535C",
+    "#FF9F1C", "#5D2E8C", "#70C1B3", "#FF1654",
+    "#247BA0", "#FFE66D"
+  ];
+
+  // 2) Estados (dona)
+  const coloresEstados = [
+    "#A7C7E7", "#F7B267", "#F4A4C7", "#B9A9F9",
+    "#C7E8AC", "#A7E8E1", "#AED9A0", "#D5D5D5"
+  ];
+
+  // 3) Meses (línea – un solo color exclusivo)
+  const colorLineaMeses = "rgba(30, 144, 255, 1)"; // DodgerBlue único
+
+  // 4) Técnico vs Mes (agrupadas)
+  const coloresTecnicoMes = [
+    "#6A0572", "#055864", "#E84A5F", "#2A9D8F",
+    "#F4A261", "#264653", "#8D99AE", "#D72638",
+    "#3A86FF", "#8338EC"
+  ];
+
+  // Colores para comparación
+  const colorYear = "rgba(54, 162, 235, 0.9)";
+  const colorCompare = "rgba(255, 99, 132, 0.9)";
+  const borderYear = "rgba(54, 162, 235, 1)";
+  const borderCompare = "rgba(255, 99, 132, 1)";
+
+  const mesesLabels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  // ======================================================
+  // 1️⃣ GRÁFICA DE TÉCNICOS — CORREGIDA CON ALINEACIÓN
+  // ======================================================
+  const ctxTec = document.getElementById("graphTecnicos");
+
+  let tecnicosUnicos = datos.year.tecnicos.map(t => t.tecnico);
+
+  // Si hay comparación, fusionar técnicos del año comparado
+  if (compare && datos.compare?.tecnicos) {
+    tecnicosUnicos = [
+      ...new Set([
+        ...tecnicosUnicos,
+        ...datos.compare.tecnicos.map(t => t.tecnico)
+      ])
+    ];
+  }
+
+  new Chart(ctxTec, {
+    type: "bar",
+    data: {
+      labels: tecnicosUnicos,
+      datasets: compare
+        ? [
+            {
+              label: `Año ${year}`,
+              data: tecnicosUnicos.map(nombre =>
+                datos.year.tecnicos.find(t => t.tecnico === nombre)?.total || 0
+              ),
+              backgroundColor: colorYear
+            },
+            {
+              label: `Año ${compare}`,
+              data: tecnicosUnicos.map(nombre =>
+                datos.compare.tecnicos.find(t => t.tecnico === nombre)?.total || 0
+              ),
+              backgroundColor: colorCompare
+            }
+          ]
+        : [
+            {
+              label: `Año ${year}`,
+              data: tecnicosUnicos.map(nombre =>
+                datos.year.tecnicos.find(t => t.tecnico === nombre)?.total || 0
+              ),
+              backgroundColor: coloresTecnicos
+            }
+          ]
+    },
+    options: { responsive: true, animation: false }
+  });
+
+  // ======================================================
+  // 2️⃣ GRÁFICA DE ESTADOS
+  // ======================================================
+  const ctxEstado = document.getElementById("graphEstado");
+
+  new Chart(ctxEstado, {
+    type: compare ? "bar" : "doughnut",   // 🎨 DONA SOLO SIN COMPARACIÓN
+    data: {
+      labels: datos.year.estados.map(e => e.estado),
+      datasets: compare
+        ? [
+            {
+              label: `Año ${year}`,
+              data: datos.year.estados.map(e => e.total),
+              backgroundColor: colorYear
+            },
+            {
+              label: `Año ${compare}`,
+              data: datos.compare.estados.map(e => e.total),
+              backgroundColor: colorCompare
+            }
+          ]
+        : [
+            {
+              data: datos.year.estados.map(e => e.total),
+              backgroundColor: coloresEstados   // 🎨 DONA MULTICOLOR
+            }
+          ]
+    },
+    options: {
+      responsive: true,
+      animation: false
+    }
+  });
+
+
+
+  // ======================================================
+  // 3️⃣ GRÁFICA DE MESES (SIEMPRE DE LÍNEA)
+  // ======================================================
+  const ctxMeses = document.getElementById("graphMeses");
+
+  new Chart(ctxMeses, {
+    type: "line",
+    data: {
+      labels: mesesLabels,
+      datasets: compare
+        ? [
+            {
+              label: `Año ${year}`,
+              data: datos.year.meses,
+              borderColor: borderYear,
+              backgroundColor: colorYear,
+              tension: 0.3,
+              fill: false,
+              borderWidth: 2
+            },
+            {
+              label: `Año ${compare}`,
+              data: datos.compare.meses,
+              borderColor: borderCompare,
+              backgroundColor: colorCompare,
+              tension: 0.3,
+              fill: false,
+              borderWidth: 2
+            }
+          ]
+        : [
+            {
+              label: `Año ${year}`,
+              data: datos.year.meses,
+              borderColor: colorLineaMeses,
+              backgroundColor: colorLineaMeses,
+              tension: 0.3,
+              fill: false,
+              borderWidth: 2
+            }
+          ]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+
+
+  // ======================================================
+  // 4️⃣ GRÁFICA TÉCNICO VS MES
+  // ======================================================
+  const ctxTecMes = document.getElementById("chartTecnicosMes");
+
+  const registros = datos.porTecnicoMes || [];
+  const tecnicos = [...new Set(registros.map(r => r.tecnico))];
+
+  const datasetTecMes = tecnicos.map((tec, i) => {
+    const valores = new Array(12).fill(0);
+    registros
+      .filter(r => r.tecnico === tec)
+      .forEach(r => valores[r.mes - 1] = r.total);
+
+    return {
+      label: tec,
+      data: valores,
+      backgroundColor: coloresTecnicoMes[i % coloresTecnicoMes.length],
+      borderWidth: 1
+    };
+  });
+
+  new Chart(ctxTecMes, {
+    type: "bar",
+    data: { labels: mesesLabels, datasets: datasetTecMes },
+    options: {
+      responsive: true,
+      animation: false,
+      plugins: { legend: { position: "top" }},
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+});
+</script>
+
+
+<style>
+.encabezado-admin {
+  background: #fff;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  max-width: 1500px;
+}
+.logo-admin { width: 85px; height: 85px; object-fit: contain; }
+canvas { width: 100%!important; max-height: 280px!important; }
+</style>

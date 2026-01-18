@@ -1,0 +1,241 @@
+<!-- ================= ENCABEZADO UNIVERSAL ================= -->
+<div class="encabezado-admin d-flex align-items-center justify-content-between">
+
+  <!-- LOGO IZQUIERDA -->
+  <div class="encabezado-logo">
+    <% if (logo) { %>
+      <img 
+        src="/uploads/<%= logo %>" 
+        alt="Logo institucional"
+        class="logo-admin"
+      >
+    <% } %>
+  </div>
+
+  <!-- TÍTULO CENTRADO -->
+  <div class="encabezado-titulos flex-grow-1 text-center">
+    <h2 class="titulo-admin">
+      <i class="fas fa-user-shield me-2"></i> Auditoría de Usuarios
+    </h2>
+    <p class="subtitulo-admin">
+      <%= usuarioSesion?.nombre || "Administrador" %>
+    </p>
+  </div>
+
+  <!-- ESPACIADOR DERECHO -->
+  <div class="encabezado-espaciador"></div>
+</div>
+
+<!-- ================= CONTENIDO ================= -->
+<main class="container py-4">
+
+  <!-- ================= FILTROS ================= -->
+  <form class="row g-3 mb-4" method="GET" action="/admin/auditoria-usuarios">
+
+    <!-- Usuario -->
+    <div class="col-md-3">
+      <label class="form-label">Usuario (nombre o correo)</label>
+      <input
+        type="text"
+        name="usuario"
+        class="form-control"
+        placeholder="Ej: andres / @hotmail.com"
+        value="<%= filtros?.usuario || '' %>"
+      >
+    </div>
+
+    <!-- Acción -->
+    <div class="col-md-2">
+      <label class="form-label">Acción</label>
+      <select name="accion" class="form-select">
+        <option value="">Todas</option>
+        <% (acciones || []).forEach(a => { %>
+          <option value="<%= a.accion %>" <%= filtros?.accion === a.accion ? 'selected' : '' %>>
+            <%= a.accion %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Fecha desde -->
+    <div class="col-md-2">
+      <label class="form-label">Desde</label>
+      <input
+        type="date"
+        name="fecha_desde"
+        class="form-control"
+        value="<%= filtros?.fecha_desde || '' %>"
+      >
+    </div>
+
+    <!-- Fecha hasta -->
+    <div class="col-6 col-md-2">
+      <label class="form-label">Hasta</label>
+      <input
+        type="date"
+        name="fecha_hasta"
+        class="form-control"
+        value="<%= filtros?.fecha_hasta || '' %>"
+      >
+    </div>
+
+    <!-- Botón filtrar -->
+    <div class="col-12 col-md-1 d-flex align-items-end">
+      <button class="btn btn-primary w-100">
+        Filtrar
+      </button>
+    </div>
+
+    <!-- Limpiar -->
+    <div class="col-12 col-md-1 d-flex align-items-end">
+      <a href="/admin/auditoria-usuarios" class="btn btn-outline-secondary w-100">
+        Limpiar
+      </a>
+    </div>
+
+   </form>
+
+  <!-- ================= TABLA ================= -->
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Fecha</th>
+        <th>Administrador</th>
+        <th>Usuario afectado</th>
+        <th>Acción</th>
+        <th>Cambio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% auditoria.forEach(a => { %>
+        <tr>
+          <td><%= new Date(a.fecha).toLocaleString() %></td>
+          <td><%= a.admin || 'Sistema' %></td>
+          <td><%= a.usuario_afectado || '—' %></td>
+          <td>
+            <span class="badge bg-info">
+              <%= a.accion %>
+            </span>
+          </td>
+          <td>
+            <% 
+              const antes = a.antes_json || {};
+              const despues = a.despues_json || {};
+              const cambios = [];
+
+              // Cambio de rol
+              if (antes.rol !== undefined && antes.rol !== despues.rol) {
+                cambios.push(`
+                  Rol:
+                  <span class="badge bg-secondary">${antes.rol}</span>
+                  →
+                  <span class="badge bg-primary">${despues.rol}</span>
+                `);
+              }
+
+              // Cambio 2FA
+              if (
+                antes.twofa_enabled !== undefined &&
+                antes.twofa_enabled !== despues.twofa_enabled
+              ) {
+                cambios.push(`
+                  2FA:
+                  <span class="badge bg-${antes.twofa_enabled ? 'success' : 'secondary'}">
+                    ${antes.twofa_enabled ? 'Activado' : 'Desactivado'}
+                  </span>
+                  →
+                  <span class="badge bg-${despues.twofa_enabled ? 'success' : 'secondary'}">
+                    ${despues.twofa_enabled ? 'Activado' : 'Desactivado'}
+                  </span>
+                `);
+              }
+            %>
+
+            <%- cambios.length ? cambios.join(' | ') : '—' %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+
+      <% if (pagina > 1) { %>
+        <li class="page-item">
+          <a class="page-link" href="?pagina=<%= pagina - 1 %>">Anterior</a>
+        </li>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPaginas; i++) { %>
+        <li class="page-item <%= i === pagina ? 'active' : '' %>">
+          <a class="page-link" href="?pagina=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <% if (pagina < totalPaginas) { %>
+        <li class="page-item">
+          <a class="page-link" href="?pagina=<%= pagina + 1 %>">Siguiente</a>
+        </li>
+      <% } %>
+
+    </ul>
+  </nav>
+
+<div class="mt-3">
+  <a href="/admin/usuarios"
+     class="fw-bold text-decoration-none">
+    ⬅ Volver a Usuarios
+  </a>
+</div>
+
+</main>
+
+<!-- ================= ESTILOS ENCABEZADO ================= -->
+<style>
+  .encabezado-admin {
+    background: #ffffff;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 1500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .encabezado-logo {
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-admin {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+  }
+
+  .encabezado-titulos {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .titulo-admin {
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitulo-admin {
+    font-size: 15px;
+    color: #555;
+    margin-top: 5px;
+  }
+
+  .encabezado-espaciador {
+    width: 120px;
+  }
+</style>
